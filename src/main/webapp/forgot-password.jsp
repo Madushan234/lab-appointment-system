@@ -5,9 +5,12 @@
 if (session.getAttribute("user-email") != null) {
 	response.sendRedirect("dashboard.jsp");
 }
-Map<String, String> fieldErrors = (Map<String, String>) request.getAttribute("fieldErrors");
+
+Map<String, String> fieldErrors = (Map<String, String>) session.getAttribute("fieldErrors");
 String emailError = (fieldErrors != null && fieldErrors.containsKey("email_address")) ? fieldErrors.get("email_address")
 		: null;
+session.removeAttribute("fieldErrors");
+
 %>
 <!DOCTYPE html>
 <html>
@@ -64,7 +67,7 @@ String emailError = (fieldErrors != null && fieldErrors.containsKey("email_addre
 								</div>
 								<div class="text-center mt-3 font-weight-normal">
 									Don't have an account? <a href="sign-up.jsp"
-										class="text-primary">Register here</a>
+										class="text-primary">Sign Up Instead</a>
 								</div>
 							</form>
 						</div>

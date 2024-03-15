@@ -36,15 +36,15 @@ public class NewPasswordServlet extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
 		HttpSession session = request.getSession();
+		Map<String, String> fieldErrors = new HashMap<>();
+		boolean status = false;
+		
 		String emailAddress = (String) session.getAttribute("forgot-password-email");
 		String otp = request.getParameter("otp");
 		String password = request.getParameter("password");
 		String confirmPassword = request.getParameter("confirm_password");
 
-		RequestDispatcher dispatcher = null;
-
-		Map<String, String> fieldErrors = new HashMap<>();
-
+		
 		String otpError = ValidationUtils.isFieldRequired("otp", otp);
 		if (otpError != null) {
 			fieldErrors.put("otp", otpError);
@@ -75,33 +75,30 @@ public class NewPasswordServlet extends HttpServlet {
 		} else {
 			String confirmPasswordError1 = ValidationUtils.isLengthIsValid("confirm_password", confirmPassword, 8);
 			if (confirmPasswordError1 != null) {
-				fieldErrors.put("password", confirmPasswordError1);
+				fieldErrors.put("confirm_password", confirmPasswordError1);
 			}
 		}
 
 		if (fieldErrors.isEmpty()) {
 			try {
-				boolean status = UserDao.resetPassword(emailAddress, otp, password, confirmPassword);
-				if (status) {
+				boolean resetStatus = UserDao.resetPassword(emailAddress, otp, password, confirmPassword);
+				if (resetStatus) {
 					session.setAttribute("forgot-password-email", null); 
 		            session.setAttribute("forgot-password-success", "Password reset successfully. Please log in.");
-					response.sendRedirect("login.jsp");
+					status = true;
 				} else {
 					fieldErrors.put("otp", "Invalid otp.");
-					dispatcher = request.getRequestDispatcher("new-password.jsp");
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-		} else {
-			dispatcher = request.getRequestDispatcher("new-password.jsp");
 		}
 
-		if (dispatcher != null) {
-			request.setAttribute("fieldErrors", fieldErrors);
-			dispatcher.forward(request, response);
+		if (status) {
+			response.sendRedirect("login.jsp");
 		} else {
-			response.getWriter().write("Error: Unable to get the request dispatcher.");
+			session.setAttribute("fieldErrors", fieldErrors);
+			response.sendRedirect("new-password.jsp");
 		}
 	}
 

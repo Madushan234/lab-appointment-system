@@ -48,13 +48,12 @@ public class LoginServlet extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		// TODO Auto-generated method stub
+		HttpSession session = request.getSession();
+		Map<String, String> fieldErrors = new HashMap<>();
+		boolean status = false;
+		
 		String emailAddress = request.getParameter("email_address");
 		String password = request.getParameter("password");
-
-		RequestDispatcher dispatcher = null;
-		HttpSession session = request.getSession();
-
-		Map<String, String> fieldErrors = new HashMap<>();
 
 		String emailError = ValidationUtils.isFieldRequired("email_address", emailAddress);
 		if (emailError != null) {
@@ -81,25 +80,23 @@ public class LoginServlet extends HttpServlet {
 				User user = UserDao.authenticateUser(emailAddress, password);
 				if (user != null) {
 					session.setAttribute("user-email", user.getEmail());
-					session.setAttribute("user-name", user.getFirstName() + " " + user.getLastName());
+					session.setAttribute("user-first-name", user.getFirstName());
+					session.setAttribute("user-last-name", user.getLastName());
 					session.setAttribute("user-role", user.getRoleName());
-					response.sendRedirect("dashboard.jsp");
+					status = true;
 				} else {
 					fieldErrors.put("email_address", "These credentials do not match our records.");
-					dispatcher = request.getRequestDispatcher("login.jsp");
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-		} else {
-			dispatcher = request.getRequestDispatcher("login.jsp");
 		}
-
-		if (dispatcher != null) {
-			request.setAttribute("fieldErrors", fieldErrors);
-			dispatcher.forward(request, response);
+		
+		if (status) {
+			response.sendRedirect("dashboard.jsp");
 		} else {
-			response.getWriter().write("Error: Unable to get the request dispatcher.");
+			session.setAttribute("fieldErrors", fieldErrors);
+			response.sendRedirect("login.jsp");
 		}
 	}
 }

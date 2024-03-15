@@ -56,12 +56,11 @@ public class ForgotPasswordServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		// TODO Auto-generated method stub
-		String emailAddress = request.getParameter("email_address");
-
-		RequestDispatcher dispatcher = null;
 		HttpSession session = request.getSession();
-
 		Map<String, String> fieldErrors = new HashMap<>();
+		boolean status = false;
+    	
+		String emailAddress = request.getParameter("email_address");
 
 		String emailError = ValidationUtils.isFieldRequired("email_address", emailAddress);
 		if (emailError != null) {
@@ -75,28 +74,23 @@ public class ForgotPasswordServlet extends HttpServlet {
 
 		if (fieldErrors.isEmpty()) {
 			try {
-				boolean status = UserDao.createPasswordResetTokens(emailAddress);
-				if (status) {
+				boolean sendStatus = UserDao.createPasswordResetTokens(emailAddress);
+				if (sendStatus) {
 					session.setAttribute("forgot-password-email", emailAddress); 
-					response.sendRedirect("new-password.jsp");
+					status = true;
 				} else {
 					fieldErrors.put("email_address", "These credentials do not match our records.");
-					dispatcher = request.getRequestDispatcher("forgot-password.jsp");
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-		} else {
-			dispatcher = request.getRequestDispatcher("forgot-password.jsp");
 		}
-
-		if (dispatcher != null) {
-			request.setAttribute("fieldErrors", fieldErrors);
-			dispatcher.forward(request, response);
+		
+		if (status) {
+			response.sendRedirect("new-password.jsp");
 		} else {
-			response.getWriter().write("Error: Unable to get the request dispatcher.");
+			session.setAttribute("fieldErrors", fieldErrors);
+			response.sendRedirect("forgot-password.jsp");
 		}
 	}
-	
-
 }
