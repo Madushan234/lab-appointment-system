@@ -12,9 +12,10 @@ String userLastName = (String) session.getAttribute("user-last-name");
 String userRole = (String) session.getAttribute("user-role");
 if (userFirstName == null || userEmail == null) {
 	response.sendRedirect("../login.jsp");
-}
-if (!"admin".equals(userRole)) {
-    response.sendRedirect("../dashboard.jsp");
+}else{
+	if (!"admin".equals(userRole)) {
+	    response.sendRedirect("../dashboard.jsp");
+	}
 }
 
 List<User> techniciansList = UserDao.getAllTechnicians();

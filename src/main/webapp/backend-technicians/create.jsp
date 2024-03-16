@@ -12,10 +12,6 @@ String userRole = (String) session.getAttribute("user-role");
 if (userFirstName == null || userEmail == null) {
 	response.sendRedirect("../login.jsp");
 }
-if (!"admin".equals(userRole)) {
-	response.sendRedirect("../dashboard.jsp");
-}
-
 Map<String, String> fieldErrors = (Map<String, String>) session.getAttribute("fieldErrors");
 String firstNameError = SessionMapUtils.getFiledValue(fieldErrors, "first_name");
 String lastNameError = SessionMapUtils.getFiledValue(fieldErrors, "last_name");
@@ -187,18 +183,17 @@ if (updateUserEmail != null) {
 										</p>
 									</div>
 									<div class="my-5">
-										<form class="pt-3" action="technician/create" method="post">
+										<form class="pt-3" action="technicians" method="post">
 											<div class="row">
 												<div class="col-md-6">
 													<input type="hidden" name="action"
 														value="<%=(updateUserEmail != null) ? "update" : "create"%>">
 													<div class="form-group">
 														<label for="email_address" class="font-weight-500">Email
-															Address</label> <input type="email"
+															Address<%=(updateUserEmail == null) ? "" : " (Cannot be changed)"%></label> <input type="email"
 															class="form-control form-control-lg" id="email_address"
 															name="email_address" placeholder="Email Address"
-															<%if (updateUserEmail != null)
-	out.print("disabled");%>
+															
 															value="<%=email%>">
 														<%=(emailError != null) ? "<span style=\"color: red;\">" + emailError + "</span>" : ""%>
 
@@ -316,8 +311,7 @@ if (updateUserEmail != null) {
 	<script type="text/javascript">
 		Swal.fire({
 			title : "Good job!",
-			text : "<%=status%>
-		",
+			text :  "<%= status %>",
 			icon : "success"
 		});
 	</script>
