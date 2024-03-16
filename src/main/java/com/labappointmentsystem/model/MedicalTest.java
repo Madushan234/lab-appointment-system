@@ -6,7 +6,7 @@ public class MedicalTest {
 	private String description;
 	private String normalRecordData;
 	private double amount;
-	private int processingTime;
+	private double processingTime;
 	private boolean isActive;
 
 	public int getId() {
@@ -49,11 +49,11 @@ public class MedicalTest {
 		this.amount = amount;
 	}
 
-	public int getProcessingTime() {
+	public double getProcessingTime() {
 		return processingTime;
 	}
 
-	public void setProcessingTime(int processingTime) {
+	public void setProcessingTime(double processingTime) {
 		this.processingTime = processingTime;
 	}
 

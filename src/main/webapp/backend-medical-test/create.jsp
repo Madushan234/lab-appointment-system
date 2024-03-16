@@ -2,8 +2,8 @@
 	pageEncoding="ISO-8859-1"%>
 <%@ page import="java.util.Map"%>
 <%@ page import="com.labappointmentsystem.util.SessionMapUtils"%>
-<%@ page import="com.labappointmentsystem.dao.UserDao"%>
-<%@ page import="com.labappointmentsystem.model.User"%>
+<%@ page import="com.labappointmentsystem.dao.MedicalTestDao"%>
+<%@ page import="com.labappointmentsystem.model.MedicalTest"%>
 <%
 String userEmail = (String) session.getAttribute("user-email");
 String userFirstName = (String) session.getAttribute("user-first-name");
@@ -13,51 +13,48 @@ if (userFirstName == null || userEmail == null) {
 	response.sendRedirect("../login.jsp");
 }
 Map<String, String> fieldErrors = (Map<String, String>) session.getAttribute("fieldErrors");
-String firstNameError = SessionMapUtils.getFiledValue(fieldErrors, "first_name");
-String lastNameError = SessionMapUtils.getFiledValue(fieldErrors, "last_name");
-String emailError = SessionMapUtils.getFiledValue(fieldErrors, "email_address");
-String passwordError = SessionMapUtils.getFiledValue(fieldErrors, "password");
-String confirmPasswordError = SessionMapUtils.getFiledValue(fieldErrors, "confirm_password");
-String telephoneNumberError = SessionMapUtils.getFiledValue(fieldErrors, "telephone_number");
-String nicError = SessionMapUtils.getFiledValue(fieldErrors, "nic");
-String dobError = SessionMapUtils.getFiledValue(fieldErrors, "date_of_birth");
+String idError = SessionMapUtils.getFiledValue(fieldErrors, "medical_test_id");
+String nameError = SessionMapUtils.getFiledValue(fieldErrors, "medical_test_name");
+String descriptionError = SessionMapUtils.getFiledValue(fieldErrors, "medical_test_description");
+String dataError = SessionMapUtils.getFiledValue(fieldErrors, "medical_test_normal_record_data");
+String amountError = SessionMapUtils.getFiledValue(fieldErrors, "medical_test_amount");
+String timeError = SessionMapUtils.getFiledValue(fieldErrors, "medical_test_processing_time");
+String isActiveError = SessionMapUtils.getFiledValue(fieldErrors, "medical_test_is_active");
 String common = SessionMapUtils.getFiledValue(fieldErrors, "common");
 session.removeAttribute("fieldErrors");
 
 String status = (String) session.getAttribute("medical-test-create-status");
 session.removeAttribute("medical-test-create-status");
 
-String updateUserEmail = request.getParameter("medical-test");
-if (status != null || updateUserEmail != null) {
-	session.removeAttribute("createTechniciansFields");
+String updateTestId = request.getParameter("medical-test");
+if (status != null || updateTestId != null) {
+	session.removeAttribute("createMedicalTestFileds");
 }
 
-String firstName, lastName, email, password, confirmPassword, telephoneNumber, nic, dob;
-firstName = lastName = email = password = confirmPassword = telephoneNumber = nic = dob = "";
-boolean isInvalidUser = false;
-if (updateUserEmail != null) {
-	User userData = UserDao.findUserByEmail(updateUserEmail);
-	if (userData != null) {
-		firstName = userData.getFirstName();
-		lastName = userData.getLastName();
-		email = userData.getEmail();
-		telephoneNumber = userData.getTelNumber();
-		nic = userData.getNic();
-		dob = userData.getDob();
+String testId, testName, testDescription, testNormalRecordData, testAmount, testProccesingTime;
+testId = testName = testDescription = testNormalRecordData = testAmount = testProccesingTime = "";
+boolean isInvalidTest = false;
+if (updateTestId != null) {
+	MedicalTest medicalTestData = MedicalTestDao.findMedicalTestById(updateTestId);
+	if (medicalTestData != null) {
+		testId = String.valueOf(medicalTestData.getId());
+		testName = medicalTestData.getName();
+		testDescription = medicalTestData.getDescription();
+		testNormalRecordData = medicalTestData.getNormalRecordData();
+		testAmount = String.valueOf(medicalTestData.getAmount());
+		testProccesingTime = String.valueOf(medicalTestData.getProcessingTime());
 	} else {
-		updateUserEmail = null;
-		isInvalidUser = true;
+		updateTestId = null;
+		isInvalidTest = true;
 	}
 } else {
 	Map<String, String> inputs = (Map<String, String>) session.getAttribute("createMedicalTestFileds");
-	firstName = SessionMapUtils.getFiledValue(inputs, "first_name");
-	lastName = SessionMapUtils.getFiledValue(inputs, "last_name");
-	email = SessionMapUtils.getFiledValue(inputs, "email_address");
-	password = SessionMapUtils.getFiledValue(inputs, "password");
-	confirmPassword = SessionMapUtils.getFiledValue(inputs, "confirm_password");
-	telephoneNumber = SessionMapUtils.getFiledValue(inputs, "telephone_number");
-	nic = SessionMapUtils.getFiledValue(inputs, "nic");
-	dob = SessionMapUtils.getFiledValue(inputs, "date_of_birth");
+	testId = SessionMapUtils.getFiledValue(inputs, "medical_test_id");
+	testName = SessionMapUtils.getFiledValue(inputs, "medical_test_name");
+	testDescription = SessionMapUtils.getFiledValue(inputs, "medical_test_description");
+	testNormalRecordData = SessionMapUtils.getFiledValue(inputs, "medical_test_normal_record_data");
+	testAmount = SessionMapUtils.getFiledValue(inputs, "medical_test_amount");
+	testProccesingTime = SessionMapUtils.getFiledValue(inputs, "medical_test_processing_time");
 	session.removeAttribute("createTechniciansFields");
 }
 %>
@@ -68,7 +65,7 @@ if (updateUserEmail != null) {
 <meta charset="utf-8">
 <meta name="viewport"
 	content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>ABC - Technicians</title>
+<title>ABC - Medical Tests</title>
 <script src="../assets/js/js/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <link rel="stylesheet" href="../assets/css/vendors/feather/feather.css">
@@ -179,95 +176,66 @@ if (updateUserEmail != null) {
 								<div class="card-body">
 									<div class="d-flex justify-content-between m-3">
 										<p class="card-title mb-0">
-											<%=(updateUserEmail == null) ? "Create a New Technician" : "Update a Technician"%>
+											<%=(updateTestId == null) ? "Create a New Technician" : "Update a Technician"%>
 										</p>
 									</div>
 									<div class="my-5">
-										<form class="pt-3" action="technicians" method="post">
+										<form class="pt-3" action="medical-test" method="post">
 											<div class="row">
 												<div class="col-md-6">
 													<input type="hidden" name="action"
-														value="<%=(updateUserEmail != null) ? "update" : "create"%>">
+														value="<%=(updateTestId != null) ? "update" : "create"%>">
+													<input type="hidden" name="medical_test_id"
+														value="<%=updateTestId %>">
 													<div class="form-group">
-														<label for="email_address" class="font-weight-500">Email
-															Address<%=(updateUserEmail == null) ? "" : " (Cannot be changed)"%></label> <input type="email"
-															class="form-control form-control-lg" id="email_address"
-															name="email_address" placeholder="Email Address"
-															
-															value="<%=email%>">
-														<%=(emailError != null) ? "<span style=\"color: red;\">" + emailError + "</span>" : ""%>
+														<label for="medical_test_name" class="font-weight-500">Medical
+															Test Name</label> <input type="text"
+															class="form-control form-control-lg"
+															id="medical_test_name" name="medical_test_name"
+															placeholder="Medical Test Name" value="<%=testName%>">
+														<%=(nameError != null) ? "<span style=\"color: red;\">" + nameError + "</span>" : ""%>
 
 													</div>
 													<div class="form-group">
-														<label for="first_name" class="font-weight-500">First
-															Name</label> <input type="text"
-															class="form-control form-control-lg" id="first_name"
-															name="first_name" placeholder="First Name"
-															value="<%=firstName%>">
-														<%=(firstNameError != null) ? "<span style=\"color: red;\">" + firstNameError + "</span>" : ""%>
+														<label for="medical_test_description"
+															class="font-weight-500">Medical Test Description</label>
+														<textarea class="form-control form-control-lg"
+															id="medical_test_description"
+															name="medical_test_description" rows="15"
+															placeholder="Medical Test Description"><%=testDescription%></textarea>
+														<%=(descriptionError != null) ? "<span style=\"color: red;\">" + descriptionError + "</span>" : ""%>
 													</div>
 													<div class="form-group">
-														<label for="last_name" class="font-weight-500">Last
-															Name</label> <input type="text"
-															class="form-control form-control-lg" id="last_name"
-															name="last_name" placeholder="Last Name"
-															value="<%=lastName%>">
-														<%=(lastNameError != null) ? "<span style=\"color: red;\">" + lastNameError + "</span>" : ""%>
+														<label for="medical_test_amount" class="font-weight-500">Medical
+															Test Amount</label> <input type="number" min="1" step="0.01"
+															class="form-control form-control-lg"
+															id="medical_test_amount" name="medical_test_amount"
+															placeholder="Medical Test Amount" value="<%=testAmount%>">
+														<%=(amountError != null) ? "<span style=\"color: red;\">" + amountError + "</span>" : ""%>
 													</div>
-													<%
-													if (updateUserEmail == null) {
-													%>
-													<div class="form-group">
-														<label for="password" class="font-weight-500">Password</label>
-														<input type="text" class="form-control form-control-lg"
-															id="password" name="password" placeholder="Password"
-															value="<%=password%>">
-														<%=(passwordError != null) ? "<span style=\"color: red;\">" + passwordError + "</span>" : ""%>
-													</div>
-													<%
-													}
-													%>
 												</div>
 												<div class="col-md-6">
 													<div class="form-group">
-														<label for="date_of_birth" class="font-weight-500">Date
-															of Birth</label> <input type="date"
-															class="form-control form-control-lg" id="date_of_birth"
-															name="date_of_birth" placeholder="Date of Birth"
-															value="<%=dob%>">
-														<%=(dobError != null) ? "<span style=\"color: red;\">" + dobError + "</span>" : ""%>
-													</div>
-													<div class="form-group">
-														<label for="telephone_number" class="font-weight-500">Telephone
-															Number</label> <input type="tel"
+														<label for="medical_test_processing_time"
+															class="font-weight-500">Medical Test Processing
+															Time</label> <input type="number" min="1" step="0.25"
 															class="form-control form-control-lg"
-															id="telephone_number" name="telephone_number"
-															placeholder="Telephone Number"
-															value="<%=telephoneNumber%>">
-														<%=(telephoneNumberError != null) ? "<span style=\"color: red;\">" + telephoneNumberError + "</span>" : ""%>
+															id="medical_test_processing_time"
+															name="medical_test_processing_time"
+															placeholder="Medical Test Processing Time"
+															value="<%=testProccesingTime%>">
+														<%=(timeError != null) ? "<span style=\"color: red;\">" + timeError + "</span>" : ""%>
 													</div>
 													<div class="form-group">
-														<label for="nic" class="font-weight-500">NIC
-															Number</label> <input type="text"
-															class="form-control form-control-lg" id="nic" name="nic"
-															placeholder="NIC Number" value="<%=nic%>">
-														<%=(nicError != null) ? "<span style=\"color: red;\">" + nicError + "</span>" : ""%>
+														<label for="medical_test_normal_record_data"
+															class="font-weight-500">Medical Test Normal
+															Record Data</label>
+														<textarea class="form-control form-control-lg"
+															id="medical_test_normal_record_data"
+															name="medical_test_normal_record_data" rows="15"
+															placeholder="Medical Test Description"><%=testNormalRecordData%></textarea>
+														<%=(dataError != null) ? "<span style=\"color: red;\">" + dataError + "</span>" : ""%>
 													</div>
-													<%
-													if (updateUserEmail == null) {
-													%>
-													<div class="form-group">
-														<label for="confirm_password" class="font-weight-500">Confirm
-															Password</label> <input type="text"
-															class="form-control form-control-lg"
-															id="confirm_password" name="confirm_password"
-															placeholder="Confirm Password"
-															value="<%=confirmPassword%>">
-														<%=(confirmPasswordError != null) ? "<span style=\"color: red;\">" + confirmPasswordError + "</span>" : ""%>
-													</div>
-													<%
-													}
-													%>
 												</div>
 											</div>
 
@@ -311,18 +279,18 @@ if (updateUserEmail != null) {
 	<script type="text/javascript">
 		Swal.fire({
 			title : "Good job!",
-			text :  "<%= status %>",
+			text :  "<%=status%>",
 			icon : "success"
 		});
 	</script>
 	<%
 	}
-	if (isInvalidUser) {
+	if (isInvalidTest) {
 	%>
 	<script type="text/javascript">
 		Swal.fire({
 			title : "Failed!",
-			text : "These credentials do not match our records.",
+			text : "These medical test do not match our records.",
 			icon : "error"
 		});
 	</script>
@@ -330,4 +298,3 @@ if (updateUserEmail != null) {
 	}
 	%>
 </body>
-</html>

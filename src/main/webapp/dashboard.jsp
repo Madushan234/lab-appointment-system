@@ -91,7 +91,7 @@ if (userFirstName == null || userEmail == null) {
 							class="icon-paper menu-icon"></i> <span class="menu-title">All
 								Appointment</span>
 					</a></li>
-					<li class="nav-item"><a class="nav-link" href="backend-medical-test.jsp"> <i
+					<li class="nav-item"><a class="nav-link" href="backend-medical-test/index.jsp"> <i
 							class="icon-server menu-icon"></i> <span class="menu-title">Medical
 								Test</span>
 					</a></li>

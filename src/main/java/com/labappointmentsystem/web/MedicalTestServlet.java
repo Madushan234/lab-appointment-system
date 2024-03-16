@@ -13,9 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import com.labappointmentsystem.dao.MedicalTestDao;
-import com.labappointmentsystem.dao.UserDao;
 import com.labappointmentsystem.model.MedicalTest;
-import com.labappointmentsystem.model.User;
 import com.labappointmentsystem.util.ValidationUtils;
 
 /**
@@ -61,15 +59,24 @@ public class MedicalTestServlet extends HttpServlet {
 			String paramValue = request.getParameter(paramName);
 			createMedicalTestFileds.put(paramName, paramValue);
 		}
-		session.setAttribute("createTechniciansFields", createMedicalTestFileds);
+		session.setAttribute("createMedicalTestFileds", createMedicalTestFileds);
 
 		String formAction = request.getParameter("action");
 		String medical_test_id = request.getParameter("medical_test_id");
 		String medical_test_name = request.getParameter("medical_test_name");
 		String medical_test_description = request.getParameter("medical_test_description");
 		String medical_test_normal_record_data = request.getParameter("medical_test_normal_record_data");
-		double medical_test_amount = Double.parseDouble(request.getParameter("medical_test_amount"));
-		int medical_test_processing_time = Integer.parseInt(request.getParameter("medical_test_processing_time"));
+
+		String medical_test_amount_param = request.getParameter("medical_test_amount");
+		double medical_test_amount = 0;
+		if (medical_test_amount_param != null && !medical_test_amount_param.isEmpty()) {
+			medical_test_amount = Double.parseDouble(medical_test_amount_param);
+		}
+		String medical_test_processing_time_param = request.getParameter("medical_test_processing_time");
+		double medical_test_processing_time = 0;
+		if (medical_test_processing_time_param != null && !medical_test_processing_time_param.isEmpty()) {
+			medical_test_processing_time = Double.parseDouble(medical_test_processing_time_param);
+		}
 
 		String error = ValidationUtils.isFieldRequired("medical_test_name", medical_test_name);
 		if (error != null) {
@@ -87,25 +94,27 @@ public class MedicalTestServlet extends HttpServlet {
 			fieldErrors.put("medical_test_normal_record_data", error2);
 		}
 
-		String error4 = ValidationUtils.isFieldRequired("medical_test_amount", String.valueOf(medical_test_amount));
+		String error4 = ValidationUtils.isFieldRequired("medical_test_amount", medical_test_amount_param);
 		if (error4 != null) {
-			fieldErrors.put("nic", error4);
+			fieldErrors.put("medical_test_amount", error4);
 		}
 
-		String error5 = ValidationUtils.isFieldRequired("date_of_birth", String.valueOf(medical_test_processing_time));
+		String error5 = ValidationUtils.isFieldRequired("medical_test_processing_time",
+				medical_test_processing_time_param);
 		if (error5 != null) {
-			fieldErrors.put("date_of_birth", error5);
+			fieldErrors.put("medical_test_processing_time", error5);
 		}
 
 		if (fieldErrors.isEmpty()) {
 			try {
 				if (formAction.equals("create")) {
-					medicalTest = MedicalTestDao.createMedicalTest(medical_test_name, medical_test_description, medical_test_normal_record_data,
-							medical_test_amount,medical_test_processing_time);
+					medicalTest = MedicalTestDao.createMedicalTest(medical_test_name, medical_test_description,
+							medical_test_normal_record_data, medical_test_amount, medical_test_processing_time);
 
 				} else {
-					medicalTest = MedicalTestDao.updateMedicalTest(medical_test_id, medical_test_name, medical_test_description, medical_test_normal_record_data,
-							medical_test_amount,medical_test_processing_time);
+					medicalTest = MedicalTestDao.updateMedicalTest(medical_test_id, medical_test_name,
+							medical_test_description, medical_test_normal_record_data, medical_test_amount,
+							medical_test_processing_time);
 
 				}
 			} catch (Exception e) {

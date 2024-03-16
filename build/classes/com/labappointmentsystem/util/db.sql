@@ -46,7 +46,7 @@ CREATE TABLE medical_tests (
     description LONGTEXT NOT NULL,
     normal_record_data LONGTEXT NOT NULL,
     amount DOUBLE(15,2) NOT NULL,
-    processing_time INT(10) NOT NULL,
+    processing_time DOUBLE(15,2) NOT NULL,
     is_active BOOLEAN DEFAULT true,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP

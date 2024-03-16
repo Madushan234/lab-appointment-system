@@ -163,10 +163,10 @@ List<MedicalTest> medicalTestList = MedicalTestDao.getAllMedicalTest();
 																<tr>
 																	<td><%=medicalTest.getId()%></td>
 																	<td><%=medicalTest.getName()%></td>
-																	<td><%=medicalTest.getAmount()%></td>
-																	<td><%=medicalTest.getProcessingTime()%></td>
+																	<td><%=String.valueOf(medicalTest.getAmount())%></td>
+																	<td><%=String.valueOf(medicalTest.getProcessingTime())%></td>
 																	<td><a
-																		href="create.jsp?medical-test=<%=medicalTest.getId()%>">EDIT</a></td>
+																		href="create.jsp?medical-test=<%=String.valueOf(medicalTest.getId())%>">EDIT</a></td>
 																</tr>
 																<%
 																}
