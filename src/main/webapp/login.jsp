@@ -5,15 +5,18 @@
 if (session.getAttribute("user-email") != null) {
 	response.sendRedirect("dashboard.jsp");
 }
+
 String successMessage = (String) session.getAttribute("forgot-password-success");
 if (successMessage != null) {
 	session.removeAttribute("forgot-password-success");
 }
-Map<String, String> fieldErrors = (Map<String, String>) request.getAttribute("fieldErrors");
+
+Map<String, String> fieldErrors = (Map<String, String>) session.getAttribute("fieldErrors");
 String emailError = (fieldErrors != null && fieldErrors.containsKey("email_address")) ? fieldErrors.get("email_address")
 		: null;
 String passwordError = (fieldErrors != null && fieldErrors.containsKey("password")) ? fieldErrors.get("password")
 		: null;
+session.removeAttribute("fieldErrors");
 %>
 <!DOCTYPE html>
 <html>
@@ -99,7 +102,7 @@ String passwordError = (fieldErrors != null && fieldErrors.containsKey("password
 								</div>
 								<div class="text-center mt-4 font-weight-normal">
 									Don't have an account? <a href="sign-up.jsp"
-										class="text-primary">Register here</a>
+										class="text-primary">Sign Up Instead</a>
 								</div>
 							</form>
 						</div>
@@ -108,5 +111,9 @@ String passwordError = (fieldErrors != null && fieldErrors.containsKey("password
 			</div>
 		</div>
 	</div>
+	
+	
+	
+
 </body>
 </html>

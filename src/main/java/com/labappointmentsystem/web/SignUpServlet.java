@@ -1,4 +1,4 @@
-package com.labappointmentsystem.auth;
+package com.labappointmentsystem.web;
 
 import java.io.IOException;
 import javax.servlet.ServletException;
@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 /**
  * Servlet implementation class SignUpServlet
  */
-@WebServlet("/sign-up")
+@WebServlet("/backend-techncians")
 public class SignUpServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        

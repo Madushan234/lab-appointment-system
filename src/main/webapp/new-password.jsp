@@ -9,13 +9,15 @@ if (session.getAttribute("forgot-password-email") == null) {
 	response.sendRedirect("forgot-password.jsp");
 }
 
-Map<String, String> fieldErrors = (Map<String, String>) request.getAttribute("fieldErrors");
+Map<String, String> fieldErrors = (Map<String, String>) session.getAttribute("fieldErrors");
 String otpError = (fieldErrors != null && fieldErrors.containsKey("otp")) ? fieldErrors.get("otp") : null;
 String passwordError = (fieldErrors != null && fieldErrors.containsKey("password")) ? fieldErrors.get("password")
 		: null;
 String confirmPasswordError = (fieldErrors != null && fieldErrors.containsKey("confirm_password"))
 		? fieldErrors.get("confirm_password")
 		: null;
+session.removeAttribute("fieldErrors");
+
 %>
 <!DOCTYPE html>
 <html>
@@ -96,7 +98,7 @@ String confirmPasswordError = (fieldErrors != null && fieldErrors.containsKey("c
 								</div>
 								<div class="text-center mt-3 font-weight-normal">
 									Don't have an account? <a href="sign-up.jsp"
-										class="text-primary">Register here</a>
+										class="text-primary">Sign Up Instead</a>
 								</div>
 							</form>
 						</div>

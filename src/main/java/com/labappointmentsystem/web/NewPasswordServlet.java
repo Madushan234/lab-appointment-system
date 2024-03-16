@@ -1,4 +1,4 @@
-package com.labappointmentsystem.auth;
+package com.labappointmentsystem.web;
 
 import java.io.IOException;
 import java.util.HashMap;
