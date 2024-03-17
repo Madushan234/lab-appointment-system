@@ -54,12 +54,13 @@ public class UserDao {
 		ResultSet rs = null;
 		try {
 			con = DbConnectionManager.getConnection();
-			String query = "SELECT u.email, u.first_name, u.last_name, u.tel_number, u.nic, u.dob, r.name AS role_name FROM users u JOIN roles r ON u.role_id = r.id WHERE u.email=?";
+			String query = "SELECT u.id, u.email, u.first_name, u.last_name, u.tel_number, u.nic, u.dob, r.name AS role_name FROM users u JOIN roles r ON u.role_id = r.id WHERE u.email=?";
 			PreparedStatement pst = con.prepareStatement(query);
 			pst.setString(1, emailAddress);
 			rs = pst.executeQuery();
 			if (rs.next()) {
 				user = new User();
+				user.setId(rs.getInt("id"));
 				user.setEmail(rs.getString("email"));
 				user.setFirstName(rs.getString("first_name"));
 				user.setLastName(rs.getString("last_name"));
@@ -76,6 +77,8 @@ public class UserDao {
 		return user;
 	}
 
+	
+	
 	public static User authenticateUser(String emailAddress, String password) {
 		Connection con = null;
 		User user = null;
@@ -204,10 +207,11 @@ public class UserDao {
 		return false;
 	}
 
-	public static User createTechnicians(String first_name, String last_name, String email_address, String password,
-			String confirm_password, String telephone_number, String nic, String date_of_birth, String role) {
 
-		Connection con = null;
+	
+	public static User createUser(Connection con,String first_name, String last_name, String email_address, String password,
+			String confirm_password, String telephone_number, String nic, String date_of_birth, int roleId) {
+
 		PreparedStatement preparedStatement = null;
 		try {
 			con = DbConnectionManager.getConnection();
@@ -221,7 +225,7 @@ public class UserDao {
 			preparedStatement.setString(5, telephone_number);
 			preparedStatement.setString(6, nic);
 			preparedStatement.setString(7, date_of_birth);
-			preparedStatement.setInt(8, getRoleId(role));
+			preparedStatement.setInt(8, roleId);
 			int rowsAffected = preparedStatement.executeUpdate();
 			if (rowsAffected > 0) {
 				return findUserByEmail(email_address);
@@ -230,38 +234,12 @@ public class UserDao {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} finally {
-			DbConnectionManager.closeConnection(con);
 		}
 		return null;
 	}
 	
-	public static User updateUserByEmail(String first_name, String last_name, String email_address, String telephone_number, String nic, String date_of_birth) {
-
-        Connection con = null;
-        PreparedStatement preparedStatement = null;
-        try {
-            con = DbConnectionManager.getConnection();
-            String sql = "UPDATE users SET first_name=?, last_name=?, tel_number=?, nic=?, dob=? WHERE email=?";
-            preparedStatement = con.prepareStatement(sql);
-            preparedStatement.setString(1, first_name);
-            preparedStatement.setString(2, last_name);
-            preparedStatement.setString(3, telephone_number);
-            preparedStatement.setString(4, nic);
-            preparedStatement.setString(5, date_of_birth);
-            preparedStatement.setString(6, email_address);
-            int rowsAffected = preparedStatement.executeUpdate();
-            if (rowsAffected > 0) {
-                return findUserByEmail(email_address);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            DbConnectionManager.closeConnection(con);
-        }
-        return null;
-    }
-
-
+	
+	
 	public static List<User> getAllTechnicians() {
 	    Connection con = null;
 	    List<User> userList = new ArrayList<>();
@@ -315,5 +293,65 @@ public class UserDao {
 	        DbConnectionManager.closeConnection(con);
 	    }
 	    return userList;
+	}
+
+	public static User createTechnicians(String first_name, String last_name, String email_address, String password,
+			String confirm_password, String telephone_number, String nic, String date_of_birth, String role) {
+		Connection con = null;
+		User user = null;
+		try {
+			con = DbConnectionManager.getConnection();
+			user = createUser(con, first_name, last_name, email_address, password, confirm_password, telephone_number,
+		            nic, date_of_birth, getRoleId(role));
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			DbConnectionManager.closeConnection(con);
+		}
+		return user;
+	}
+
+	public static User updateUserByEmail(String first_name, String last_name, String email_address, String telephone_number, String nic, String date_of_birth) {
+
+        Connection con = null;
+        PreparedStatement preparedStatement = null;
+        try {
+            con = DbConnectionManager.getConnection();
+            String sql = "UPDATE users SET first_name=?, last_name=?, tel_number=?, nic=?, dob=? WHERE email=?";
+            preparedStatement = con.prepareStatement(sql);
+            preparedStatement.setString(1, first_name);
+            preparedStatement.setString(2, last_name);
+            preparedStatement.setString(3, telephone_number);
+            preparedStatement.setString(4, nic);
+            preparedStatement.setString(5, date_of_birth);
+            preparedStatement.setString(6, email_address);
+            int rowsAffected = preparedStatement.executeUpdate();
+            if (rowsAffected > 0) {
+                return findUserByEmail(email_address);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            DbConnectionManager.closeConnection(con);
+        }
+        return null;
+    }
+
+	
+
+	public static User createPatient(String first_name, String last_name, String email_address, String password,
+			String confirm_password, String telephone_number, String nic, String date_of_birth, String role) {
+		Connection con = null;
+		User user = null;
+		try {
+			con = DbConnectionManager.getConnection();
+			user = createUser(con, first_name, last_name, email_address, password, confirm_password, telephone_number,
+		            nic, date_of_birth, getRoleId(role));
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			DbConnectionManager.closeConnection(con);
+		}
+		return user;
 	}
 }

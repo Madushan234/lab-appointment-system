@@ -67,7 +67,7 @@ if (updateTestId != null) {
 <meta charset="utf-8">
 <meta name="viewport"
 	content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>ABC - Medical Tests</title>
+<title>ABC - All Appointment</title>
 <script src="../assets/js/js/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <link rel="stylesheet" href="../assets/css/vendors/feather/feather.css">

@@ -26,7 +26,7 @@ List<User> usersList = UserDao.getAllUsers();
 <meta charset="utf-8">
 <meta name="viewport"
 	content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>ABC - Technicians</title>
+<title>ABC - All Users</title>
 <script src="../assets/js/js/jquery-3.7.1.min.js"></script>
 
 <link rel="stylesheet" href="../assets/css/vendors/feather/feather.css">

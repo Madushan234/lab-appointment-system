@@ -46,7 +46,7 @@ CREATE TABLE medical_tests (
     description LONGTEXT NOT NULL,
     normal_record_data LONGTEXT NOT NULL,
     amount DOUBLE(15,2) NOT NULL,
-    processing_time INT(10) NOT NULL,
+    processing_time DOUBLE(15,2) NOT NULL,
     is_active BOOLEAN DEFAULT true,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
@@ -62,6 +62,11 @@ CREATE TABLE appointments (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
+
+ALTER TABLE appointments
+ADD COLUMN select_date DATE AFTER recommended_doctor,
+ADD COLUMN select_time TIME AFTER select_date;
+
 
 CREATE TABLE payments (
     id INT AUTO_INCREMENT PRIMARY KEY,

@@ -78,7 +78,7 @@ if (userFirstName == null || userEmail == null) {
 					<%
 					if (userRole != null) {
 					%>
-					<li class="nav-item"><a class="nav-link" href="backend-my-appointment.jsp"> <i
+					<li class="nav-item"><a class="nav-link" href="backend-my-appointment/index.jsp"> <i
 							class="icon-paper menu-icon"></i> <span class="menu-title">My
 								Appointment</span>
 					</a></li>
@@ -87,18 +87,18 @@ if (userFirstName == null || userEmail == null) {
 					}
 					if (userRole != null) {
 					%>
-					<li class="nav-item"><a class="nav-link" href="backend-appointment.jsp"> <i
+					<li class="nav-item"><a class="nav-link" href="backend-appointment/index.jsp"> <i
 							class="icon-paper menu-icon"></i> <span class="menu-title">All
 								Appointment</span>
 					</a></li>
-					<li class="nav-item"><a class="nav-link" href="backend-medical-test.jsp"> <i
+					<li class="nav-item"><a class="nav-link" href="backend-medical-test/index.jsp"> <i
 							class="icon-server menu-icon"></i> <span class="menu-title">Medical
 								Test</span>
 					</a></li>
 					<li class="nav-item"><a class="nav-link" href="backend-technicians/index.jsp"> <i
 							class="icon-head menu-icon"></i> <span class="menu-title">Technician</span>
 					</a></li>
-					<li class="nav-item"><a class="nav-link" href="backend-users.jsp"> <i
+					<li class="nav-item"><a class="nav-link" href="backend-users/index.jsp"> <i
 							class="icon-head menu-icon"></i> <span class="menu-title">Users</span>
 					</a></li>
 

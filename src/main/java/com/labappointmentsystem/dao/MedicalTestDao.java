@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,7 +31,7 @@ public class MedicalTestDao {
 				medicalTest.setDescription(rs.getString("description"));
 				medicalTest.setNormalRecordData(rs.getString("normal_record_data"));
 				medicalTest.setAmount(rs.getDouble("amount"));
-				medicalTest.setProcessingTime(rs.getInt("processing_time"));
+				medicalTest.setProcessingTime(rs.getDouble("processing_time"));
 				medicalTest.setActive(rs.getBoolean("is_active"));
 			}
 		} catch (SQLException e) {
@@ -42,22 +43,27 @@ public class MedicalTestDao {
 	}
 
 	public static MedicalTest createMedicalTest(String medical_test_name, String medical_test_description,
-			String medical_test_normal_record_data, double medical_test_amount, int medical_test_processing_time) {
+			String medical_test_normal_record_data, double medical_test_amount, double medical_test_processing_time) {
 		Connection con = null;
 		PreparedStatement preparedStatement = null;
+		ResultSet rs = null;
 		try {
 			con = DbConnectionManager.getConnection();
 			String sql = "INSERT INTO medical_tests (name, description, normal_record_data, amount, processing_time) "
 					+ "VALUES (?, ?, ?, ?, ?)";
-			preparedStatement = con.prepareStatement(sql);
+			preparedStatement = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 			preparedStatement.setString(1, medical_test_name);
 			preparedStatement.setString(2, medical_test_description);
 			preparedStatement.setString(3, medical_test_normal_record_data);
 			preparedStatement.setDouble(4, medical_test_amount);
-			preparedStatement.setInt(5, medical_test_processing_time);
+			preparedStatement.setDouble(5, medical_test_processing_time);
 			int rowsAffected = preparedStatement.executeUpdate();
 			if (rowsAffected > 0) {
-				return findMedicalTestById(medical_test_name);
+				rs = preparedStatement.getGeneratedKeys();
+				if (rs.next()) {
+					int generatedId = rs.getInt(1);
+					return findMedicalTestById(String.valueOf(generatedId));
+				}
 			}
 
 		} catch (SQLException e) {
@@ -70,19 +76,20 @@ public class MedicalTestDao {
 
 	public static MedicalTest updateMedicalTest(String medical_test_id, String medical_test_name,
 			String medical_test_description, String medical_test_normal_record_data, double medical_test_amount,
-			int medical_test_processing_time) {
+			double medical_test_processing_time, boolean medical_test_is_active) {
 		Connection con = null;
 		PreparedStatement preparedStatement = null;
 		try {
 			con = DbConnectionManager.getConnection();
-			String sql = "UPDATE medical_tests SET name=?, description=?, normal_record_data=?, amount=?, processing_time=? WHERE id=?";
+			String sql = "UPDATE medical_tests SET name=?, description=?, normal_record_data=?, amount=?, processing_time=?, is_active=? WHERE id=?";
 			preparedStatement = con.prepareStatement(sql);
 			preparedStatement.setString(1, medical_test_name);
 			preparedStatement.setString(2, medical_test_description);
 			preparedStatement.setString(3, medical_test_normal_record_data);
 			preparedStatement.setDouble(4, medical_test_amount);
-			preparedStatement.setInt(5, medical_test_processing_time);
-			preparedStatement.setString(6, medical_test_id);
+			preparedStatement.setDouble(5, medical_test_processing_time);
+			preparedStatement.setBoolean(6, medical_test_is_active);
+			preparedStatement.setString(7, medical_test_id);
 			int rowsAffected = preparedStatement.executeUpdate();
 			if (rowsAffected > 0) {
 				return findMedicalTestById(medical_test_id);
@@ -95,15 +102,12 @@ public class MedicalTestDao {
 		return null;
 	}
 
-
-
-	public static List<MedicalTest> getAllMedicalTest() {
+	public static List<MedicalTest> getMedicalTest(String query) {
 		Connection con = null;
 		List<MedicalTest> medicalTestList = new ArrayList<>();
 		ResultSet rs = null;
 		try {
 			con = DbConnectionManager.getConnection();
-			String query = "SELECT * FROM medical_tests";
 			PreparedStatement pst = con.prepareStatement(query);
 			rs = pst.executeQuery();
 			while (rs.next()) {
@@ -113,7 +117,7 @@ public class MedicalTestDao {
 				medicalTest.setDescription(rs.getString("description"));
 				medicalTest.setNormalRecordData(rs.getString("normal_record_data"));
 				medicalTest.setAmount(rs.getDouble("amount"));
-				medicalTest.setProcessingTime(rs.getInt("processing_time"));
+				medicalTest.setProcessingTime(rs.getDouble("processing_time"));
 				medicalTestList.add(medicalTest);
 			}
 		} catch (SQLException e) {
@@ -122,5 +126,15 @@ public class MedicalTestDao {
 			DbConnectionManager.closeConnection(con);
 		}
 		return medicalTestList;
+	}
+	
+	public static List<MedicalTest> getAllMedicalTest() {
+	    String query = "SELECT * FROM medical_tests";
+	    return getMedicalTest(query);
+	}
+	
+	public static List<MedicalTest> getAllActiveMedicalTest() {
+	    String query = "SELECT * FROM medical_tests WHERE is_active = true";
+	    return getMedicalTest(query);
 	}
 }
