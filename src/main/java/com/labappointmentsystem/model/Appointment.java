@@ -8,7 +8,9 @@ public class Appointment {
     private String recommendedDoctor;
     private String selectDate;
     private String selectTime;
-
+    private User user;
+    private MedicalTest medicalTest;
+    private Payment payment;
 
     public int getId() {
         return id;
@@ -65,4 +67,29 @@ public class Appointment {
     public void setSelectTime(String selectTime) {
         this.selectTime = selectTime;
     }
+    
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+    
+    public MedicalTest getMedicalTest() {
+        return medicalTest;
+    }
+
+    public void setMedicalTest(MedicalTest medicalTest) {
+        this.medicalTest = medicalTest;
+    }
+    
+    public Payment getPayment() {
+        return payment;
+    }
+
+    public void setPayment(Payment payment) {
+        this.payment = payment;
+    }
+    
 }

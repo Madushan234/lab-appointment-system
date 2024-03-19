@@ -143,9 +143,7 @@ public class SignUpServlet extends HttpServlet {
 			isAppointmentAvailable = true;
 		}
 
-		System.out.println(fieldErrors);
 		if (fieldErrors.isEmpty()) {
-			System.out.println("-----1111");
 			try {
 				User userData = UserDao.findUserByEmail(email_address);
 				if (userData == null) {
@@ -163,8 +161,6 @@ public class SignUpServlet extends HttpServlet {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-		} else {
-			System.out.println("-----2222");
 		}
 
 		if (user == null) {

@@ -42,7 +42,6 @@ public class TechniciansServlet extends HttpServlet {
 		response.sendRedirect("backend-technicians/index.jsp");
 		// String path = request.getServletPath();
 		// String action = request.getPathInfo();
-		// System.out.println(action);
 	}
 
 	/**

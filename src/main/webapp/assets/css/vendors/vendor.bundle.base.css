@@ -137,3 +137,16 @@
 .select2-selection__choice__display {
 	padding-left: 5px !important;
 }
+
+@media (min-width: 1280px) {
+    .flex-container {
+        display: flex;
+        flex-direction: row;
+    }
+}
+@media (max-width: 1279.98px) {
+    .flex-container {
+        display: flex;
+        flex-direction: column;
+    }
+}

@@ -84,6 +84,11 @@ CREATE TABLE status (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL
 );
+INSERT INTO status (name) VALUES ('Pending');
+INSERT INTO status (name) VALUES ('In Progress');
+INSERT INTO status (name) VALUES ('Complete');
+INSERT INTO status (name) VALUES ('On Hold');
+INSERT INTO status (name) VALUES ('Cancelled');
 
 CREATE TABLE medical_test_records (
     id INT AUTO_INCREMENT PRIMARY KEY,

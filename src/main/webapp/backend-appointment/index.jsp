@@ -1,8 +1,8 @@
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
 	pageEncoding="ISO-8859-1"%>
 <%@ page import="java.util.Map"%>
-<%@ page import="com.labappointmentsystem.dao.MedicalTestDao"%>
-<%@ page import="com.labappointmentsystem.model.MedicalTest"%>
+<%@ page import="com.labappointmentsystem.dao.AppointmentDao"%>
+<%@ page import="com.labappointmentsystem.model.Appointment"%>
 <%@ page import="java.util.List"%>
 
 <%
@@ -13,11 +13,11 @@ String userRole = (String) session.getAttribute("user-role");
 if (userFirstName == null || userEmail == null) {
 	response.sendRedirect("../login.jsp");
 } else {
-	if (!"admin".equals(userRole)) {
+	if ("patient".equals(userRole)) {
 		response.sendRedirect("../dashboard.jsp");
 	}
 }
-List<MedicalTest> medicalTestList = MedicalTestDao.getAllMedicalTest();
+List<Appointment> appointmentList = AppointmentDao.getAllAppointments();
 %>
 <!DOCTYPE html>
 <html>
@@ -26,7 +26,7 @@ List<MedicalTest> medicalTestList = MedicalTestDao.getAllMedicalTest();
 <meta charset="utf-8">
 <meta name="viewport"
 	content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>ABC - All Appointment</title>
+<title>ABC - All Appointments</title>
 <script src="../assets/js/js/jquery-3.7.1.min.js"></script>
 
 <link rel="stylesheet" href="../assets/css/vendors/feather/feather.css">
@@ -137,9 +137,7 @@ List<MedicalTest> medicalTestList = MedicalTestDao.getAllMedicalTest();
 							<div class="card">
 								<div class="card-body">
 									<div class="d-flex justify-content-between m-3">
-										<p class="card-title mb-0">Medical Tests</p>
-										<a href="create.jsp" class="btn btn-primary"> Create a New
-											Medical Test</a>
+										<p class="card-title mb-0">All Appointment</p>
 									</div>
 									<div class="row">
 										<div class="col-md-12 grid-margin stretch-card">
@@ -150,23 +148,29 @@ List<MedicalTest> medicalTestList = MedicalTestDao.getAllMedicalTest();
 															<thead class="bg-info text-white">
 																<tr>
 																	<th>ID</th>
-																	<th>Name</th>
+																	<th>Patient Name</th>
 																	<th>Amount</th>
-																	<th>Processing Time(hours)</th>
+																	<th>Recommended Doctor</th>
+																	<th>Booking Date</th>
+																	<th>Booking Time</th>
+																	<th>Status</th>
 																	<th>Action</th>
 																</tr>
 															</thead>
 															<tbody>
 																<%
-																for (MedicalTest medicalTest : medicalTestList) {
+																for (Appointment appointment : appointmentList) {
 																%>
 																<tr>
-																	<td><%=medicalTest.getId()%></td>
-																	<td><%=medicalTest.getName()%></td>
-																	<td><%=String.valueOf(medicalTest.getAmount())%></td>
-																	<td><%=String.valueOf(medicalTest.getProcessingTime())%></td>
+																	<td><%=appointment.getId()%></td>
+																	<td><%=appointment.getUser().getFirstName() + " " + appointment.getUser().getLastName()%></td>
+																	<td><%=String.valueOf(appointment.getAmount())%></td>
+																	<td><%=appointment.getRecommendedDoctor()%></td>
+																	<td><%=appointment.getSelectDate()%></td>
+																	<td><%=appointment.getSelectTime()%></td>
+																	<td class="text-uppercase"><%=appointment.getAppointmentStatus()%></td>
 																	<td><a
-																		href="create.jsp?medical-test=<%=String.valueOf(medicalTest.getId())%>">EDIT</a></td>
+																		href="manage.jsp?appoiment=<%=String.valueOf(appointment.getId())%>">Manage</a></td>
 																</tr>
 																<%
 																}
