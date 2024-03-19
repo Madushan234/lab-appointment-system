@@ -217,13 +217,13 @@ String userRole = (String) session.getAttribute("user-role");
 				<div class="col-lg-4 col-md-6">
 					<h3 class="text-white mb-4">Quick Links</h3>
 					<div class="d-flex flex-column justify-content-start">
-						<a class="text-light mb-2" href="#"><i
+						<a class="text-light mb-2" href="index.jsp"><i
 							class="bi bi-arrow-right text-primary me-2"></i>Home</a> <a
-							class="text-light mb-2" href="#"><i
+							class="text-light mb-2" href="index.jsp#about-us"><i
 							class="bi bi-arrow-right text-primary me-2"></i>About Us</a> <a
-							class="text-light mb-2" href="#"><i
+							class="text-light mb-2" href="index.jsp#our-service"><i
 							class="bi bi-arrow-right text-primary me-2"></i>Our Services</a> <a
-							class="text-light" href="#"><i
+							class="text-light" href="contact.jsp"><i
 							class="bi bi-arrow-right text-primary me-2"></i>Contact Us</a>
 					</div>
 				</div>
@@ -283,6 +283,5 @@ String userRole = (String) session.getAttribute("user-role");
 	<script src="front-assets/package/twentytwenty/jquery.event.move.js"></script>
 	<script src="front-assets/package/twentytwenty/jquery.twentytwenty.js"></script>
 	<script src="front-assets/package/main.js"></script>
-	<script src="assets/js/js/todolist.js"></script>
 </body>
 </html>

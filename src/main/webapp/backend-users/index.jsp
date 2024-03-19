@@ -207,7 +207,6 @@ List<User> usersList = UserDao.getAllUsers();
 	<script src="../assets/js/js/hoverable-collapse.js"></script>
 	<script src="../assets/js/js/template.js"></script>
 	<script src="../assets/js/js/settings.js"></script>
-	<script src="../assets/js/js/todolist.js"></script>
 	<script src="../assets/js/js/dashboard.js"></script>
 	<script src="../assets/js/js/Chart.roundedBarCharts.js"></script>
 </body>

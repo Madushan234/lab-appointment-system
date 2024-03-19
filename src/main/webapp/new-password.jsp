@@ -112,7 +112,6 @@ session.removeAttribute("fieldErrors");
 	<script src="assets/js/js/hoverable-collapse.js"></script>
 	<script src="assets/js/js/template.js"></script>
 	<script src="assets/js/js/settings.js"></script>
-	<script src="assets/js/js/todolist.js"></script>
 	<script src="assets/js/script.js"></script>
 </body>
 </html>
