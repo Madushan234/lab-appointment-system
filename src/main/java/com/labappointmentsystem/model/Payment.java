@@ -4,9 +4,8 @@ public class Payment {
     private int id;
     private int appointmentId;
     private String description;
-    private String other;
     private double amount;
-    private byte[] invoice;
+    private String invoice;
 
     // Getters and setters
     public int getId() {
@@ -33,14 +32,6 @@ public class Payment {
         this.description = description;
     }
 
-    public String getOther() {
-        return other;
-    }
-
-    public void setOther(String other) {
-        this.other = other;
-    }
-
     public double getAmount() {
         return amount;
     }
@@ -49,11 +40,11 @@ public class Payment {
         this.amount = amount;
     }
 
-    public byte[] getInvoice() {
+    public String getInvoice() {
         return invoice;
     }
 
-    public void setInvoice(byte[] invoice) {
+    public void setInvoice(String invoice) {
         this.invoice = invoice;
     }
 }

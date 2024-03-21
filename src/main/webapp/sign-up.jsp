@@ -5,9 +5,11 @@
 <%@ page import="com.labappointmentsystem.dao.MedicalTestDao"%>
 <%@ page import="com.labappointmentsystem.model.MedicalTest"%>
 <%@ page import="java.util.List"%>
+<%@ page import="com.labappointmentsystem.util.UserAuthManager"%>
 
 <%
-if (session.getAttribute("user-email") != null) {
+boolean isAuth = UserAuthManager.getInstance().isAuthenticated(session);
+if (isAuth) {
 	response.sendRedirect("dashboard.jsp");
 }
 
@@ -83,7 +85,7 @@ List<MedicalTest> medicalTestList = MedicalTestDao.getAllActiveMedicalTest();
 							class="auth-form-light text-left py-5 px-4 px-sm-5 rounded-xl">
 							<div
 								class="align-items-center d-flex flex-column justify-content-center text-center">
-								<img src="assets/image/logo.svg" alt="logo" class="w-30 mb-4">
+								<img src="assets/image/logo.png" alt="logo" class="w-50 mb-4">
 								<h4 class="mb-2">Sign Up</h4>
 								<h6 class="font-weight-normal mb-2">Sign up is easy. It
 									only takes a few steps</h6>

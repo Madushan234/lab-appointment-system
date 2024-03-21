@@ -8,13 +8,19 @@
 <%@ page import="com.labappointmentsystem.model.Appointment"%>
 <%@ page import="com.labappointmentsystem.model.Status"%>
 <%@ page import="java.util.List"%>
+<%@ page import="com.labappointmentsystem.util.UserAuthManager"%>
 <%
+boolean isAuth = UserAuthManager.getInstance().isAuthenticated(session);
+if (!isAuth) {
+	response.sendRedirect("../login.jsp");
+}
+
 String userEmail = (String) session.getAttribute("user-email");
 String userFirstName = (String) session.getAttribute("user-first-name");
 String userLastName = (String) session.getAttribute("user-last-name");
 String userRole = (String) session.getAttribute("user-role");
-if (userFirstName == null || userEmail == null) {
-	response.sendRedirect("../login.jsp");
+if (!"patient".equals(userRole)) {
+	response.sendRedirect("../dashboard.jsp");
 }
 
 Map<String, String> fieldErrors = (Map<String, String>) session.getAttribute("fieldErrors");
@@ -59,7 +65,7 @@ if (testRecordId != null) {
 <meta charset="utf-8">
 <meta name="viewport"
 	content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>ABC - Appointment</title>
+<title>ABC - Appointment Medical Record</title>
 <script src="../assets/js/js/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <link rel="stylesheet" href="../assets/css/vendors/feather/feather.css">
@@ -73,7 +79,7 @@ if (testRecordId != null) {
 	href="../assets/css/vendors/select.dataTables.min.css">
 <link rel="stylesheet"
 	href="../assets/css/vendors/vertical-layout-light/style.css">
-<link rel="shortcut icon" href="../assets/images/favicon.png" />
+<link rel="shortcut icon" href="../assets/image/favicon.png" />
 </head>
 <body>
 	<div class="container-scroller">
@@ -81,10 +87,12 @@ if (testRecordId != null) {
 		<nav class="navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row">
 			<div
 				class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-center">
-				<a class="navbar-brand brand-logo mr-5" href="index.html"><img
-					src="../assets/image/logo.svg" class="mr-2" alt="logo" /></a> <a
-					class="navbar-brand brand-logo-mini" href="index.html"><img
-					src="../assets/image/logo-mini.svg" alt="logo" /></a>
+				<a class="navbar-brand brand-logo mr-5" href="dashboard.jsp"><img
+					src="../assets/image/logo.png" class="ml-4" alt="logo"
+					style="height: 40px; width: 200px;" /></a> <a
+					class="navbar-brand brand-logo-mini" href="dashboard.jsp"><img
+					src="../assets/image/logo-mini.png" alt="logo"
+					style="height: 40px; width: 40px;" /></a>
 			</div>
 			<div
 				class="navbar-menu-wrapper d-flex align-items-center justify-content-end">
@@ -122,7 +130,7 @@ if (testRecordId != null) {
 							<span class="menu-title">Dashboard</span>
 					</a></li>
 					<%
-					if (userRole != null) {
+					if ("patient".equals(userRole)) {
 					%>
 					<li class="nav-item"><a class="nav-link"
 						href="../backend-my-appointment/index.jsp"> <i
@@ -140,6 +148,7 @@ if (testRecordId != null) {
 					</a></li>
 					<%
 					}
+
 					if ("admin".equals(userRole)) {
 					%>
 					<li class="nav-item"><a class="nav-link"
@@ -158,9 +167,9 @@ if (testRecordId != null) {
 					<%
 					}
 					%>
-
 				</ul>
 			</nav>
+
 
 			<div class="main-panel">
 				<div class="content-wrapper">
@@ -252,7 +261,6 @@ if (testRecordId != null) {
 	</div>
 
 	<script src="../assets/js/js/vendor.bundle.base.js"></script>
-	<script src="../assets/js/js/chart.js/Chart.min.js"></script>
 	<script src="../assets/js/js/datatables.net/jquery.dataTables.js"></script>
 	<script
 		src="../assets/js/js/datatables.net-bs4/dataTables.bootstrap4.js"></script>
@@ -261,8 +269,6 @@ if (testRecordId != null) {
 	<script src="../assets/js/js/hoverable-collapse.js"></script>
 	<script src="../assets/js/js/template.js"></script>
 	<script src="../assets/js/js/settings.js"></script>
-	<script src="../assets/js/js/dashboard.js"></script>
-	<script src="../assets/js/js/Chart.roundedBarCharts.js"></script>
 
 	<%
 	if (status != null) {
@@ -270,8 +276,7 @@ if (testRecordId != null) {
 	<script type="text/javascript">
 		Swal.fire({
 			title : "Good job!",
-			text :  "<%=status%>
-		",
+			text :  "<%=status%>",
 			icon : "success"
 		});
 	</script>

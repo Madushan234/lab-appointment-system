@@ -1,9 +1,9 @@
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
 	pageEncoding="ISO-8859-1"%>
+<%@ page import="com.labappointmentsystem.util.UserAuthManager"%>	
 <%
-String userEmail = (String) session.getAttribute("user-email");
-String userFirstName = (String) session.getAttribute("user-first-name");
-String userRole = (String) session.getAttribute("user-role");
+boolean isAuth = UserAuthManager.getInstance().isAuthenticated(session);
+String userFirstName = (String) session.getAttribute("user-first-name"); 
 %>
 <!DOCTYPE html>
 <html>
@@ -88,13 +88,7 @@ String userRole = (String) session.getAttribute("user-role");
 			<div class="d-flex">
 				<a href="dashboard.jsp" class="btn btn-primary py-2 px-4 ms-3">Appointment</a>
 				<%
-				if (userFirstName == null || userEmail == null) {
-				%>
-				<a href="login.jsp" class="btn btn-outline-primary py-2 px-4 ms-3">Sign
-					In</a> <a href="sign-up.jsp"
-					class="btn btn-outline-primary py-2 px-4 ms-3">Sign Up</a>
-				<%
-				} else {
+				if (isAuth) {
 				%>
 				<a href="dashboard.jsp"
 					class="btn btn-outline-primary py-2 px-4 ms-3">Dashboard</a>
@@ -105,6 +99,12 @@ String userRole = (String) session.getAttribute("user-role");
 						<a href="logout" class="dropdown-item">Log Out</a>
 					</div>
 				</div>
+				<%
+				} else {
+				%>
+				<a href="login.jsp" class="btn btn-outline-primary py-2 px-4 ms-3">Sign
+					In</a> <a href="sign-up.jsp"
+					class="btn btn-outline-primary py-2 px-4 ms-3">Sign Up</a>
 				<%
 				}
 				%>

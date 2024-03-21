@@ -4,14 +4,20 @@
 <%@ page import="com.labappointmentsystem.util.SessionMapUtils"%>
 <%@ page import="com.labappointmentsystem.dao.UserDao"%>
 <%@ page import="com.labappointmentsystem.model.User"%>
+<%@ page import="com.labappointmentsystem.util.UserAuthManager"%>
 <%
+boolean isAuth = UserAuthManager.getInstance().isAuthenticated(session);
+if (!isAuth) {
+	response.sendRedirect("../login.jsp");
+}
 String userEmail = (String) session.getAttribute("user-email");
 String userFirstName = (String) session.getAttribute("user-first-name");
 String userLastName = (String) session.getAttribute("user-last-name");
 String userRole = (String) session.getAttribute("user-role");
-if (userFirstName == null || userEmail == null) {
-	response.sendRedirect("../login.jsp");
+if (!"admin".equals(userRole)) {
+    response.sendRedirect("../dashboard.jsp");
 }
+
 Map<String, String> fieldErrors = (Map<String, String>) session.getAttribute("fieldErrors");
 String firstNameError = SessionMapUtils.getFiledValue(fieldErrors, "first_name");
 String lastNameError = SessionMapUtils.getFiledValue(fieldErrors, "last_name");
@@ -82,7 +88,7 @@ if (updateUserEmail != null) {
 	href="../assets/css/vendors/select.dataTables.min.css">
 <link rel="stylesheet"
 	href="../assets/css/vendors/vertical-layout-light/style.css">
-<link rel="shortcut icon" href="../assets/images/favicon.png" />
+<link rel="shortcut icon" href="../assets/image/favicon.png" />
 </head>
 <body>
 	<div class="container-scroller">
@@ -90,10 +96,10 @@ if (updateUserEmail != null) {
 		<nav class="navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row">
 			<div
 				class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-center">
-				<a class="navbar-brand brand-logo mr-5" href="index.html"><img
-					src="../assets/image/logo.svg" class="mr-2" alt="logo" /></a> <a
-					class="navbar-brand brand-logo-mini" href="index.html"><img
-					src="../assets/image/logo-mini.svg" alt="logo" /></a>
+				<a class="navbar-brand brand-logo mr-5" href="dashboard.jsp"><img
+					src="../assets/image/logo.png" class="ml-4" alt="logo" style="height: 40px;width: 200px;" /></a>
+					<a class="navbar-brand brand-logo-mini" href="dashboard.jsp"><img
+					src="../assets/image/logo-mini.png" alt="logo" style="height: 40px;width: 40px;" /></a>
 			</div>
 			<div
 				class="navbar-menu-wrapper d-flex align-items-center justify-content-end">
@@ -131,7 +137,7 @@ if (updateUserEmail != null) {
 							<span class="menu-title">Dashboard</span>
 					</a></li>
 					<%
-					if (userRole != null) {
+					if ("patient".equals(userRole)) {
 					%>
 					<li class="nav-item"><a class="nav-link"
 						href="../backend-my-appointment/index.jsp"> <i
@@ -149,6 +155,7 @@ if (updateUserEmail != null) {
 					</a></li>
 					<%
 					}
+
 					if ("admin".equals(userRole)) {
 					%>
 					<li class="nav-item"><a class="nav-link"
@@ -195,7 +202,7 @@ if (updateUserEmail != null) {
 															name="email_address" placeholder="Email Address"
 															
 															value="<%=email%>">
-														<%=(emailError != null) ? "<span style=\"color: red;\">" + emailError + "</span>" : ""%>
+														<%=(emailError != null) ? "<span class=\"text-danger\">" + emailError + "</span>" : ""%>
 
 													</div>
 													<div class="form-group">
@@ -204,7 +211,7 @@ if (updateUserEmail != null) {
 															class="form-control form-control-lg" id="first_name"
 															name="first_name" placeholder="First Name"
 															value="<%=firstName%>">
-														<%=(firstNameError != null) ? "<span style=\"color: red;\">" + firstNameError + "</span>" : ""%>
+														<%=(firstNameError != null) ? "<span class=\"text-danger\">" + firstNameError + "</span>" : ""%>
 													</div>
 													<div class="form-group">
 														<label for="last_name" class="font-weight-500">Last
@@ -212,7 +219,7 @@ if (updateUserEmail != null) {
 															class="form-control form-control-lg" id="last_name"
 															name="last_name" placeholder="Last Name"
 															value="<%=lastName%>">
-														<%=(lastNameError != null) ? "<span style=\"color: red;\">" + lastNameError + "</span>" : ""%>
+														<%=(lastNameError != null) ? "<span class=\"text-danger\">" + lastNameError + "</span>" : ""%>
 													</div>
 													<%
 													if (updateUserEmail == null) {
@@ -222,7 +229,7 @@ if (updateUserEmail != null) {
 														<input type="text" class="form-control form-control-lg"
 															id="password" name="password" placeholder="Password"
 															value="<%=password%>">
-														<%=(passwordError != null) ? "<span style=\"color: red;\">" + passwordError + "</span>" : ""%>
+														<%=(passwordError != null) ? "<span class=\"text-danger\">" + passwordError + "</span>" : ""%>
 													</div>
 													<%
 													}
@@ -235,7 +242,7 @@ if (updateUserEmail != null) {
 															class="form-control form-control-lg" id="date_of_birth"
 															name="date_of_birth" placeholder="Date of Birth"
 															value="<%=dob%>">
-														<%=(dobError != null) ? "<span style=\"color: red;\">" + dobError + "</span>" : ""%>
+														<%=(dobError != null) ? "<span class=\"text-danger\">" + dobError + "</span>" : ""%>
 													</div>
 													<div class="form-group">
 														<label for="telephone_number" class="font-weight-500">Telephone
@@ -244,14 +251,14 @@ if (updateUserEmail != null) {
 															id="telephone_number" name="telephone_number"
 															placeholder="Telephone Number"
 															value="<%=telephoneNumber%>">
-														<%=(telephoneNumberError != null) ? "<span style=\"color: red;\">" + telephoneNumberError + "</span>" : ""%>
+														<%=(telephoneNumberError != null) ? "<span class=\"text-danger\">" + telephoneNumberError + "</span>" : ""%>
 													</div>
 													<div class="form-group">
 														<label for="nic" class="font-weight-500">NIC
 															Number</label> <input type="text"
 															class="form-control form-control-lg" id="nic" name="nic"
 															placeholder="NIC Number" value="<%=nic%>">
-														<%=(nicError != null) ? "<span style=\"color: red;\">" + nicError + "</span>" : ""%>
+														<%=(nicError != null) ? "<span class=\"text-danger\">" + nicError + "</span>" : ""%>
 													</div>
 													<%
 													if (updateUserEmail == null) {
@@ -263,7 +270,7 @@ if (updateUserEmail != null) {
 															id="confirm_password" name="confirm_password"
 															placeholder="Confirm Password"
 															value="<%=confirmPassword%>">
-														<%=(confirmPasswordError != null) ? "<span style=\"color: red;\">" + confirmPasswordError + "</span>" : ""%>
+														<%=(confirmPasswordError != null) ? "<span class=\"text-danger\">" + confirmPasswordError + "</span>" : ""%>
 													</div>
 													<%
 													}
@@ -272,7 +279,7 @@ if (updateUserEmail != null) {
 											</div>
 
 											<div class="form-group">
-												<%=(common != null) ? "<span style=\"color: red;\">" + common + "</span>" : ""%>
+												<%=(common != null) ? "<span class=\"text-danger\">" + common + "</span>" : ""%>
 											</div>
 
 											<div class="form-group">
@@ -291,8 +298,8 @@ if (updateUserEmail != null) {
 		</div>
 	</div>
 
+
 	<script src="../assets/js/js/vendor.bundle.base.js"></script>
-	<script src="../assets/js/js/chart.js/Chart.min.js"></script>
 	<script src="../assets/js/js/datatables.net/jquery.dataTables.js"></script>
 	<script
 		src="../assets/js/js/datatables.net-bs4/dataTables.bootstrap4.js"></script>
@@ -301,8 +308,6 @@ if (updateUserEmail != null) {
 	<script src="../assets/js/js/hoverable-collapse.js"></script>
 	<script src="../assets/js/js/template.js"></script>
 	<script src="../assets/js/js/settings.js"></script>
-	<script src="../assets/js/js/dashboard.js"></script>
-	<script src="../assets/js/js/Chart.roundedBarCharts.js"></script>
 
 	<%
 	if (status != null) {

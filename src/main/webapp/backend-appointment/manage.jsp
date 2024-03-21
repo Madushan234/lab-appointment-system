@@ -7,13 +7,21 @@
 <%@ page import="com.labappointmentsystem.dao.MedicalTestRecordDao"%>
 <%@ page import="com.labappointmentsystem.model.MedicalTestRecord"%>
 <%@ page import="java.util.List"%>
+<%@ page import="com.labappointmentsystem.util.UserAuthManager"%>
+<%@ page import="com.labappointmentsystem.model.Payment"%>
+<%@ page import="com.labappointmentsystem.dao.PaymentsDao"%>
 <%
+boolean isAuth = UserAuthManager.getInstance().isAuthenticated(session);
+if (!isAuth) {
+	response.sendRedirect("../login.jsp");
+}
+
 String userEmail = (String) session.getAttribute("user-email");
 String userFirstName = (String) session.getAttribute("user-first-name");
 String userLastName = (String) session.getAttribute("user-last-name");
 String userRole = (String) session.getAttribute("user-role");
-if (userFirstName == null || userEmail == null) {
-	response.sendRedirect("../login.jsp");
+if (!("admin".equals(userRole) || "technician".equals(userRole))) {
+	response.sendRedirect("../dashboard.jsp");
 }
 
 String appoimentId = request.getParameter("appoiment");
@@ -21,6 +29,7 @@ String first_name, last_name, email, tel_number, appointment_status, recommended
 		amount;
 first_name = last_name = email = tel_number = appointment_status = recommended_doctor = booking_date = booking_time = amount = "";
 boolean isInvalidAppointment = false;
+boolean isPaid = false;
 List<MedicalTestRecord> medicalTestRecordList = MedicalTestRecordDao.findTestRecordByAppointmentId(appoimentId);
 if (appoimentId != null) {
 	Appointment appointmentData = AppointmentDao.findAppointmentById(appoimentId);
@@ -34,6 +43,11 @@ if (appoimentId != null) {
 		booking_date = appointmentData.getSelectDate();
 		booking_time = appointmentData.getSelectTime();
 		amount = String.valueOf(appointmentData.getAmount());
+		
+		Payment paymentData = PaymentsDao.findPaymentByAppointmentId(appoimentId);
+		if (paymentData != null) {
+			isPaid = true;
+		}
 	} else {
 		isInvalidAppointment = true;
 	}
@@ -46,7 +60,7 @@ if (appoimentId != null) {
 <meta charset="utf-8">
 <meta name="viewport"
 	content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>ABC - Appointment</title>
+<title>ABC - Appointment Details</title>
 <script src="../assets/js/js/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <link rel="stylesheet" href="../assets/css/vendors/feather/feather.css">
@@ -60,7 +74,7 @@ if (appoimentId != null) {
 	href="../assets/css/vendors/select.dataTables.min.css">
 <link rel="stylesheet"
 	href="../assets/css/vendors/vertical-layout-light/style.css">
-<link rel="shortcut icon" href="../assets/images/favicon.png" />
+<link rel="shortcut icon" href="../assets/image/favicon.png" />
 </head>
 <body>
 	<div class="container-scroller">
@@ -68,10 +82,12 @@ if (appoimentId != null) {
 		<nav class="navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row">
 			<div
 				class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-center">
-				<a class="navbar-brand brand-logo mr-5" href="index.html"><img
-					src="../assets/image/logo.svg" class="mr-2" alt="logo" /></a> <a
-					class="navbar-brand brand-logo-mini" href="index.html"><img
-					src="../assets/image/logo-mini.svg" alt="logo" /></a>
+				<a class="navbar-brand brand-logo mr-5" href="dashboard.jsp"><img
+					src="../assets/image/logo.png" class="ml-4" alt="logo"
+					style="height: 40px; width: 200px;" /></a> <a
+					class="navbar-brand brand-logo-mini" href="dashboard.jsp"><img
+					src="../assets/image/logo-mini.png" alt="logo"
+					style="height: 40px; width: 40px;" /></a>
 			</div>
 			<div
 				class="navbar-menu-wrapper d-flex align-items-center justify-content-end">
@@ -109,7 +125,7 @@ if (appoimentId != null) {
 							<span class="menu-title">Dashboard</span>
 					</a></li>
 					<%
-					if (userRole != null) {
+					if ("patient".equals(userRole)) {
 					%>
 					<li class="nav-item"><a class="nav-link"
 						href="../backend-my-appointment/index.jsp"> <i
@@ -127,6 +143,7 @@ if (appoimentId != null) {
 					</a></li>
 					<%
 					}
+
 					if ("admin".equals(userRole)) {
 					%>
 					<li class="nav-item"><a class="nav-link"
@@ -145,7 +162,6 @@ if (appoimentId != null) {
 					<%
 					}
 					%>
-
 				</ul>
 			</nav>
 
@@ -206,9 +222,19 @@ if (appoimentId != null) {
 													<td>Booking Time :</td>
 													<td><%=booking_time%></td>
 												</tr>
+												<tr>
+													<td>Payment :</td>
+													<td>
+														<% if (!isPaid) { %>
+														PENDING
+														<%} else {%> 
+														PAID 
+														<%}%>
+													</td>
 											</table>
 										</div>
 									</div>
+
 
 									<div class="my-5 pl-5">
 										<h4 class="pl-5 mb-3">All medical test details</h4>
@@ -262,7 +288,6 @@ if (appoimentId != null) {
 	</div>
 
 	<script src="../assets/js/js/vendor.bundle.base.js"></script>
-	<script src="../assets/js/js/chart.js/Chart.min.js"></script>
 	<script src="../assets/js/js/datatables.net/jquery.dataTables.js"></script>
 	<script
 		src="../assets/js/js/datatables.net-bs4/dataTables.bootstrap4.js"></script>
@@ -271,8 +296,6 @@ if (appoimentId != null) {
 	<script src="../assets/js/js/hoverable-collapse.js"></script>
 	<script src="../assets/js/js/template.js"></script>
 	<script src="../assets/js/js/settings.js"></script>
-	<script src="../assets/js/js/dashboard.js"></script>
-	<script src="../assets/js/js/Chart.roundedBarCharts.js"></script>
 
 	<%
 	if (isInvalidAppointment) {

@@ -300,8 +300,7 @@ List<MedicalTest> medicalTestList = MedicalTestDao.getAllActiveMedicalTest();
 	<script type="text/javascript">
 		Swal.fire({
 			title : "Good job!",
-			text :  "<%=status%>
-		",
+			text :  "<%=status%>",
 			icon : "success"
 		});
 	</script>

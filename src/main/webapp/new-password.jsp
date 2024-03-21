@@ -1,21 +1,23 @@
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
 	pageEncoding="ISO-8859-1"%>
 <%@ page import="java.util.Map"%>
+<%@ page import="com.labappointmentsystem.util.SessionMapUtils"%>
+<%@ page import="com.labappointmentsystem.util.UserAuthManager"%>
 <%
-if (session.getAttribute("user-email") != null) {
+boolean isAuth = UserAuthManager.getInstance().isAuthenticated(session);
+if (isAuth) {
 	response.sendRedirect("dashboard.jsp");
 }
-if (session.getAttribute("forgot-password-email") == null) {
+
+boolean isOtpSend = UserAuthManager.getInstance().isPasswordResetOtpSend(session);
+if (!isOtpSend) {
 	response.sendRedirect("forgot-password.jsp");
 }
 
 Map<String, String> fieldErrors = (Map<String, String>) session.getAttribute("fieldErrors");
-String otpError = (fieldErrors != null && fieldErrors.containsKey("otp")) ? fieldErrors.get("otp") : null;
-String passwordError = (fieldErrors != null && fieldErrors.containsKey("password")) ? fieldErrors.get("password")
-		: null;
-String confirmPasswordError = (fieldErrors != null && fieldErrors.containsKey("confirm_password"))
-		? fieldErrors.get("confirm_password")
-		: null;
+String otpError = SessionMapUtils.getFiledValue(fieldErrors, "otp");
+String passwordError = SessionMapUtils.getFiledValue(fieldErrors, "password");
+String confirmPasswordError = SessionMapUtils.getFiledValue(fieldErrors, "confirm_password");
 session.removeAttribute("fieldErrors");
 
 %>
@@ -47,7 +49,7 @@ session.removeAttribute("fieldErrors");
 							class="auth-form-light text-left py-5 px-4 px-sm-5 rounded-xl">
 							<div
 								class="align-items-center d-flex flex-column justify-content-center text-center">
-								<img src="assets/image/logo.svg" alt="logo" class="w-30 mb-4">
+								<img src="assets/image/logo.png" alt="logo" class="w-50 mb-4">
 								<h4 class="mb-2">New Password</h4>
 								<h6 class="font-weight-normal mb-2">Please check your email
 									for the OTP and enter it below to set your new password</h6>
@@ -56,36 +58,18 @@ session.removeAttribute("fieldErrors");
 								<div class="form-group">
 									<input type="otp" class="form-control form-control-lg" id="otp"
 										name="otp" placeholder="OTP">
-									<%
-									if (otpError != null) {
-									%>
-									<span style="color: red;"><%=otpError%></span>
-									<%
-									}
-									%>
+									<%=(otpError != null) ? "<span class=\"text-danger\">" + otpError + "</span>" : ""%>
 								</div>
 								<div class="form-group">
 									<input type="password" class="form-control form-control-lg"
 										id="password" name="password" placeholder="Password">
-									<%
-									if (passwordError != null) {
-									%>
-									<span style="color: red;"><%=passwordError%></span>
-									<%
-									}
-									%>
+									<%=(passwordError != null) ? "<span class=\"text-danger\">" + passwordError + "</span>" : ""%>
 								</div>
 								<div class="form-group">
 									<input type="password" class="form-control form-control-lg"
 										id="confirm_password" name="confirm_password"
 										placeholder="Confirm Password">
-									<%
-									if (confirmPasswordError != null) {
-									%>
-									<span style="color: red;"><%=confirmPasswordError%></span>
-									<%
-									}
-									%>
+									<%=(confirmPasswordError != null) ? "<span class=\"text-danger\">" + confirmPasswordError + "</span>" : ""%>
 								</div>
 								<div class="mt-3">
 									<input type="submit"
@@ -107,11 +91,5 @@ session.removeAttribute("fieldErrors");
 			</div>
 		</div>
 	</div>	<script src="assets/js/js/sweetalert2.all.min.js"></script>
-	<script src="assets/js/js/vendor.bundle.base.js"></script>
-	<script src="assets/js/js/off-canvas.js"></script>
-	<script src="assets/js/js/hoverable-collapse.js"></script>
-	<script src="assets/js/js/template.js"></script>
-	<script src="assets/js/js/settings.js"></script>
-	<script src="assets/js/script.js"></script>
 </body>
 </html>

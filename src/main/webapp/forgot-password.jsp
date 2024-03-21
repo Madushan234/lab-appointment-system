@@ -1,16 +1,17 @@
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
 	pageEncoding="ISO-8859-1"%>
 <%@ page import="java.util.Map"%>
+<%@ page import="com.labappointmentsystem.util.SessionMapUtils"%>
+<%@ page import="com.labappointmentsystem.util.UserAuthManager"%>
 <%
-if (session.getAttribute("user-email") != null) {
+boolean isAuth = UserAuthManager.getInstance().isAuthenticated(session);
+if (isAuth) {
 	response.sendRedirect("dashboard.jsp");
 }
 
 Map<String, String> fieldErrors = (Map<String, String>) session.getAttribute("fieldErrors");
-String emailError = (fieldErrors != null && fieldErrors.containsKey("email_address")) ? fieldErrors.get("email_address")
-		: null;
+String emailError = SessionMapUtils.getFiledValue(fieldErrors, "email_address");
 session.removeAttribute("fieldErrors");
-
 %>
 <!DOCTYPE html>
 <html>
@@ -40,22 +41,17 @@ session.removeAttribute("fieldErrors");
 							class="auth-form-light text-left py-5 px-4 px-sm-5 rounded-xl">
 							<div
 								class="align-items-center d-flex flex-column justify-content-center text-center">
-								<img src="assets/image/logo.svg" alt="logo" class="w-30 mb-4">
+								<img src="assets/image/logo.png" alt="logo" class="w-50 mb-4">
 								<h4 class="mb-2">Forgot Password</h4>
-								<h6 class="font-weight-normal mb-2">Enter your email address to recover your account</h6>
+								<h6 class="font-weight-normal mb-2">Enter your email
+									address to recover your account</h6>
 							</div>
 							<form class="pt-3" action="forgot-password" method="post">
 								<div class="form-group">
-									<input type="email_address"
-										class="form-control form-control-lg" id="email_address"
-										name="email_address" placeholder="Email Address">
-									<%
-									if (emailError != null) {
-									%>
-									<span style="color: red;"><%=emailError%></span>
-									<%
-									}
-									%>
+									<input type="email" class="form-control form-control-lg"
+										id="email_address" name="email_address"
+										placeholder="Email Address">
+									<%=(emailError != null) ? "<span class=\"text-danger\">" + emailError + "</span>" : ""%>
 								</div>
 								<div class="mt-3">
 									<input type="submit"
@@ -63,7 +59,8 @@ session.removeAttribute("fieldErrors");
 										value="Forgot Password">
 								</div>
 								<div class="my-3 text-center">
-									<a href="login.jsp" class="auth-link text-black">Back to Sign In</a>
+									<a href="login.jsp" class="auth-link text-black">Back to
+										Sign In</a>
 								</div>
 								<div class="text-center mt-3 font-weight-normal">
 									Don't have an account? <a href="sign-up.jsp"

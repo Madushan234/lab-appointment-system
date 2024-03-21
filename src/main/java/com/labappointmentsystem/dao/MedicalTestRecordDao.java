@@ -11,6 +11,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.labappointmentsystem.model.Appointment;
 import com.labappointmentsystem.model.MedicalTest;
 import com.labappointmentsystem.model.MedicalTestRecord;
 import com.labappointmentsystem.model.Status;
@@ -127,19 +128,42 @@ public class MedicalTestRecordDao {
 		return statusList;
 	}
 
-	public static MedicalTestRecord updateTestReord(String test_record_id, String test_result, String test_status)
+	//update medical test record and report generate
+	public static MedicalTestRecord updateTestReord(String test_record_id, String test_result, String test_status, String technician_id)
 			throws FileNotFoundException {
 		// TODO Auto-generated method stub
 		Connection con = null;
 		PreparedStatement preparedStatement = null;
-
+		MedicalTestRecord testRecord = findTestRecordById(test_record_id);
+		String appointmenrtId =  String.valueOf(testRecord.getAppointmentId());
+		Appointment appointment = AppointmentDao.findAppointmentById(appointmenrtId);
 		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 		Document doc = new Document();
 		try {
 			PdfWriter writer = PdfWriter.getInstance(doc, outputStream);
 			doc.open();
-			String htmlContent = "<div> " + "<hr></hr>" + "<h3 style=\"text-align: center\">BLLOD SUGER</h3>" + "<div>"
-					+ test_result.replaceAll("\\n", "<br/>") + "</div><br/><br/>" + "</div>";
+			String htmlContent = "<div style=\"padding-left: 15px;padding-right: 15px;border: 1px solid;\"> " +
+                    "<h1 style=\"text-align: center; color: blue;font-weight: bold;\">ABC laboratory</h1>" +
+                    "<p style=\"text-align: center; font-weight: bold;\">43/5 Galle Road, Colombo 2, Sri Lanka</p>" +
+                    "<p style=\"text-align: center; font-weight: bold;\">Email: abclaboratoryuk@gmail.com</p>" +
+                    "<p style=\"text-align: center; font-weight: bold;\">Tel: (+94) (011) 2583443</p>" +
+                    "<hr></hr>" +
+                    "<table>" +
+                    "<tr><td>Patient Name : </td><td>"+appointment.getUser().getFirstName()+"</td></tr>" +
+                    "<tr><td>Telephone Number : </td><td>"+appointment.getUser().getTelNumber()+"</td></tr>" +
+                    "<tr><td>Sample Collect Date : </td><td>"+appointment.getSelectDate()+"</td></tr>" +
+                    "<tr><td>Sample Collect Time : </td><td>"+appointment.getSelectTime()+"</td></tr>" +
+                    "</table>" +
+                    "<hr></hr>" +
+                    "<h3 style=\"text-align: center\">"+testRecord.getMedicalTest().getName()+"</h3>" +
+                    "<div><h4 style=\"font-weight: bold;\">Result :</h4>" +
+                    test_result.replaceAll("\\n", "<br/>") +
+                    "</div><br/><br/>" +
+                    "<div><h4 style=\"font-weight: bold;\">Reference Value :</h4>" +
+                    testRecord.getMedicalTest().getNormalRecordData().replaceAll("\\n", "<br/>") +
+                    "</div><br/><br/><hr></hr>" +
+                    "<p style=\"text-align: center\">****End of Report****</p>" +
+                    "</div>";
 			try {
 				XMLWorkerHelper.getInstance().parseXHtml(writer, doc, new java.io.StringReader(htmlContent));
 			} catch (IOException e) {
@@ -155,12 +179,13 @@ public class MedicalTestRecordDao {
 
 		try {
 			con = DbConnectionManager.getConnection();
-			String sql = "UPDATE medical_test_records SET result=?, status_id=?, report=? WHERE id=?";
+			String sql = "UPDATE medical_test_records SET result=?, status_id=?, technician_id=?, report=? WHERE id=?";
 			preparedStatement = con.prepareStatement(sql);
 			preparedStatement.setString(1, test_result);
 			preparedStatement.setString(2, test_status);
-			preparedStatement.setBytes(3, pdfBytes);
-			preparedStatement.setString(4, test_record_id);
+			preparedStatement.setString(3, technician_id);
+			preparedStatement.setBytes(4, pdfBytes);
+			preparedStatement.setString(5, test_record_id);
 			int rowsAffected = preparedStatement.executeUpdate();
 			if (rowsAffected > 0) {
 				return findTestRecordById(test_record_id);
@@ -173,6 +198,7 @@ public class MedicalTestRecordDao {
 		return null;
 	}
 
+	//get medical test report
 	public static byte[] getReportFromDatabase(int recordId) {
 		Connection con = null;
 		PreparedStatement preparedStatement = null;

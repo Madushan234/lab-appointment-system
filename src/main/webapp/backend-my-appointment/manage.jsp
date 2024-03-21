@@ -6,21 +6,30 @@
 <%@ page import="com.labappointmentsystem.model.Appointment"%>
 <%@ page import="com.labappointmentsystem.dao.MedicalTestRecordDao"%>
 <%@ page import="com.labappointmentsystem.model.MedicalTestRecord"%>
+<%@ page import="com.labappointmentsystem.model.Payment"%>
+<%@ page import="com.labappointmentsystem.dao.PaymentsDao"%>
 <%@ page import="java.util.List"%>
+<%@ page import="com.labappointmentsystem.util.UserAuthManager"%>
 <%
+boolean isAuth = UserAuthManager.getInstance().isAuthenticated(session);
+if (!isAuth) {
+	response.sendRedirect("../login.jsp");
+}
+
 String userEmail = (String) session.getAttribute("user-email");
 String userFirstName = (String) session.getAttribute("user-first-name");
 String userLastName = (String) session.getAttribute("user-last-name");
 String userRole = (String) session.getAttribute("user-role");
-if (userFirstName == null || userEmail == null) {
-	response.sendRedirect("../login.jsp");
+if (!"patient".equals(userRole)) {
+	response.sendRedirect("../dashboard.jsp");
 }
 
 String appoimentId = request.getParameter("appoiment");
-String appointment_status, recommended_doctor, booking_date, booking_time,
-		amount;
- appointment_status = recommended_doctor = booking_date = booking_time = amount = "";
+String appointment_status, recommended_doctor, booking_date, booking_time, email;
+double amount = 0;
+appointment_status = recommended_doctor = booking_date = booking_time = email = "";
 boolean isInvalidAppointment = false;
+boolean isPaid = false;
 List<MedicalTestRecord> medicalTestRecordList = MedicalTestRecordDao.findTestRecordByAppointmentId(appoimentId);
 if (appoimentId != null) {
 	Appointment appointmentData = AppointmentDao.findAppointmentById(appoimentId);
@@ -29,11 +38,20 @@ if (appoimentId != null) {
 		recommended_doctor = appointmentData.getRecommendedDoctor();
 		booking_date = appointmentData.getSelectDate();
 		booking_time = appointmentData.getSelectTime();
-		amount = String.valueOf(appointmentData.getAmount());
+		amount = appointmentData.getAmount();
+		email = appointmentData.getUser().getEmail();
+		
+		Payment paymentData = PaymentsDao.findPaymentByAppointmentId(appoimentId);
+		if (paymentData != null) {
+			isPaid = true;
+		}
 	} else {
 		isInvalidAppointment = true;
 	}
 }
+
+String paymentStatus = (String) session.getAttribute("create-status");
+session.removeAttribute("create-status");
 %>
 <!DOCTYPE html>
 <html>
@@ -42,7 +60,7 @@ if (appoimentId != null) {
 <meta charset="utf-8">
 <meta name="viewport"
 	content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>ABC - Appointment</title>
+<title>ABC - Appointment Details</title>
 <script src="../assets/js/js/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <link rel="stylesheet" href="../assets/css/vendors/feather/feather.css">
@@ -56,7 +74,7 @@ if (appoimentId != null) {
 	href="../assets/css/vendors/select.dataTables.min.css">
 <link rel="stylesheet"
 	href="../assets/css/vendors/vertical-layout-light/style.css">
-<link rel="shortcut icon" href="../assets/images/favicon.png" />
+<link rel="shortcut icon" href="../assets/image/favicon.png" />
 </head>
 <body>
 	<div class="container-scroller">
@@ -64,10 +82,12 @@ if (appoimentId != null) {
 		<nav class="navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row">
 			<div
 				class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-center">
-				<a class="navbar-brand brand-logo mr-5" href="index.html"><img
-					src="../assets/image/logo.svg" class="mr-2" alt="logo" /></a> <a
-					class="navbar-brand brand-logo-mini" href="index.html"><img
-					src="../assets/image/logo-mini.svg" alt="logo" /></a>
+				<a class="navbar-brand brand-logo mr-5" href="dashboard.jsp"><img
+					src="../assets/image/logo.png" class="ml-4" alt="logo"
+					style="height: 40px; width: 200px;" /></a> <a
+					class="navbar-brand brand-logo-mini" href="dashboard.jsp"><img
+					src="../assets/image/logo-mini.png" alt="logo"
+					style="height: 40px; width: 40px;" /></a>
 			</div>
 			<div
 				class="navbar-menu-wrapper d-flex align-items-center justify-content-end">
@@ -105,7 +125,7 @@ if (appoimentId != null) {
 							<span class="menu-title">Dashboard</span>
 					</a></li>
 					<%
-					if (userRole != null) {
+					if ("patient".equals(userRole)) {
 					%>
 					<li class="nav-item"><a class="nav-link"
 						href="../backend-my-appointment/index.jsp"> <i
@@ -123,6 +143,7 @@ if (appoimentId != null) {
 					</a></li>
 					<%
 					}
+
 					if ("admin".equals(userRole)) {
 					%>
 					<li class="nav-item"><a class="nav-link"
@@ -141,9 +162,9 @@ if (appoimentId != null) {
 					<%
 					}
 					%>
-
 				</ul>
 			</nav>
+
 
 			<div class="main-panel">
 				<div class="content-wrapper">
@@ -190,10 +211,32 @@ if (appoimentId != null) {
 													<td>Booking Time :</td>
 													<td><%=booking_time%></td>
 												</tr>
+												<tr>
+													<td>Payment :</td>
+													<td>
+														<%
+														if (!isPaid) {
+														%>
+														<form action="charge" method="post">
+															<input type="hidden" name="appointment_id" value="<%=appoimentId%>"> 
+															<input type="hidden" name="amount" value="<%=amount*100%>">
+															<input type="hidden" name="email" value="<%=email%>">
+															<script src="https://checkout.stripe.com/checkout.js"
+																class="stripe-button"
+																data-key="pk_test_51Ow8GWBNvyTXVP88HGgP8oofnbnuaVrknXdGu3GfixA706GuekTv0RhrpeCRfWfsdE4kcerOfD0ukGxwhUi9AOca00PgpWwzub"
+																data-amount="<%=amount*100%>" data-name="ABC Laboratory"
+																data-description="Medical test charge"
+																data-image="https://stripe.com/img/documentation/checkout/marketplace.png"
+																data-locale="auto" data-currency="lkr">
+																
+															</script>
+														</form> 
+														<%} else {%> PAID <%}%>
+													</td>
+												</tr>
 											</table>
 										</div>
 									</div>
-									
 									<div class="my-5 pl-5">
 										<h4 class="pl-5 mb-3">All medical test details</h4>
 										<div class="table-responsive rounded-xl">
@@ -246,7 +289,6 @@ if (appoimentId != null) {
 	</div>
 
 	<script src="../assets/js/js/vendor.bundle.base.js"></script>
-	<script src="../assets/js/js/chart.js/Chart.min.js"></script>
 	<script src="../assets/js/js/datatables.net/jquery.dataTables.js"></script>
 	<script
 		src="../assets/js/js/datatables.net-bs4/dataTables.bootstrap4.js"></script>
@@ -255,8 +297,6 @@ if (appoimentId != null) {
 	<script src="../assets/js/js/hoverable-collapse.js"></script>
 	<script src="../assets/js/js/template.js"></script>
 	<script src="../assets/js/js/settings.js"></script>
-	<script src="../assets/js/js/dashboard.js"></script>
-	<script src="../assets/js/js/Chart.roundedBarCharts.js"></script>
 
 	<%
 	if (isInvalidAppointment) {
@@ -269,6 +309,26 @@ if (appoimentId != null) {
 		});
 	</script>
 	<%
-	}
+	} if(paymentStatus =="failed"){
+	%>
+	<script type="text/javascript">
+		Swal.fire({
+			title : "Failed!",
+			text : "Payment create failed.",
+			icon : "error"
+		});
+	</script>
+	<%
+	} else if(paymentStatus =="success"){
+	%>
+	<script type="text/javascript">
+		Swal.fire({
+			title : "Successfull",
+			text : "Payment created successfully.",
+			icon : "success"
+		});
+	</script>
+	<%
+	} 
 	%>
 </body>

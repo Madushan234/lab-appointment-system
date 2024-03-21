@@ -6,25 +6,19 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 import java.util.Random;
-
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.PasswordAuthentication;
-import javax.mail.Session;
-import javax.mail.Transport;
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
 
 import com.labappointmentsystem.model.User;
 import com.labappointmentsystem.util.DbConnectionManager;
+import com.labappointmentsystem.util.EmailSender;
+import com.labappointmentsystem.util.EmailSenderFactory;
+import com.labappointmentsystem.util.Constants;
 
 public class UserDao {
-	private static final String EMAIL = "countinglead@gmail.com";
-	private static final String PASSWORD = "axrooqqmntvcxcdu";
+	private static final String EMAIL = Constants.SMTP_EMAIL;
+	private static final String PASSWORD = Constants.SMTP_PASSWORD;
 	
+	//get role id using role name	
 	public static int getRoleId(String name) {
 		Connection con = null;
 	    ResultSet rs = null;
@@ -48,6 +42,7 @@ public class UserDao {
 	    return roleId;
 	}
 
+	//find user by email address	
 	public static User findUserByEmail(String emailAddress) {
 		Connection con = null;
 		User user = null;
@@ -77,8 +72,7 @@ public class UserDao {
 		return user;
 	}
 
-	
-	
+	//user authenticate	
 	public static User authenticateUser(String emailAddress, String password) {
 		Connection con = null;
 		User user = null;
@@ -105,6 +99,7 @@ public class UserDao {
 		return user;
 	}
 
+	// send password reset OTP
 	public static boolean createPasswordResetTokens(String emailAddress) {
 		int token = 289758;
 		Connection con = null;
@@ -120,35 +115,14 @@ public class UserDao {
 				pst.setString(2, String.valueOf(token));
 				int rowsAffected = pst.executeUpdate();
 				if (rowsAffected > 0) {
-					Properties props = new Properties();
-					props.put("mail.smtp.host", "smtp.gmail.com");
-					props.put("mail.smtp.socketFactory.port", "465");
-					props.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
-					props.put("mail.smtp.auth", "true");
-					props.put("mail.smtp.port", "465");
-					Session session = Session.getDefaultInstance(props, new javax.mail.Authenticator() {
-						protected PasswordAuthentication getPasswordAuthentication() {
-							return new PasswordAuthentication(EMAIL, PASSWORD);
-						}
-					});
-					MimeMessage message = new MimeMessage(session);
-					try {
-						message.setFrom(new InternetAddress(EMAIL));
-						message.addRecipient(Message.RecipientType.TO, new InternetAddress(emailAddress));
-						message.setSubject("Password Reset OTP");
-						String htmlContent = "<html><body>" + "<h3>Hello,</h3>"
-								+ "<p>We received a request to reset your password for your ABC Laboratories web system account. "
-								+ "Please use the following OTP to complete the password reset process.</p>"
-								+ "<p>Your OTP : <strong>" + token + "</strong></p>" + "<br/><p>Thank you,</p>"
-								+ "<p>The ABC Laboratories Team</p>" + "</body></html>";
-						message.setContent(htmlContent, "text/html");
-						Transport.send(message);
-						System.out.println("message sent successfully");
-						return true;
-					} catch (AddressException e) {
-						e.printStackTrace();
-					} catch (MessagingException e) {
-						e.printStackTrace();
+					String htmlContent = "<html><body>" + "<h3>Hello,</h3>"
+							+ "<p>We received a request to reset your password for your ABC Laboratories web system account. "
+							+ "Please use the following OTP to complete the password reset process.</p>"
+							+ "<p>Your OTP : <strong>" + token + "</strong></p>" + "<br/><p>Thank you,</p>"
+							+ "<p>The ABC Laboratories Team</p>" + "</body></html>";
+					EmailSender emailSender = EmailSenderFactory.getEmailSender("gmail");
+					if (emailSender != null) {
+						return emailSender.sendEmail(emailAddress, "Password Reset OTP", htmlContent);
 					}
 				}
 			}
@@ -159,7 +133,8 @@ public class UserDao {
 		}
 		return false;
 	}
-
+	
+	//validate password reset OTP	
 	private static boolean verifyOTP(String emailAddress, String otp) {
 		Connection con = null;
 		ResultSet rs = null;
@@ -179,6 +154,7 @@ public class UserDao {
 		return false;
 	}
 
+	//password reset using OTP
 	public static boolean resetPassword(String emailAddress, String otp, String password, String confirmPassword) {
 
 		Connection con = null;
@@ -208,7 +184,64 @@ public class UserDao {
 	}
 
 
+	//user technician details
+	public static List<User> getAllTechnicians() {
+	    Connection con = null;
+	    List<User> userList = new ArrayList<>();
+	    ResultSet rs = null;
+	    try {
+	        con = DbConnectionManager.getConnection();
+	        String query = "SELECT * FROM users u JOIN roles r ON u.role_id = r.id WHERE r.name='technician'";
+	        PreparedStatement pst = con.prepareStatement(query);
+	        rs = pst.executeQuery();
+	        while (rs.next()) {
+	            User user = new User();
+	            user.setEmail(rs.getString("email"));
+	            user.setFirstName(rs.getString("first_name"));
+	            user.setLastName(rs.getString("last_name"));
+	            user.setTelNumber(rs.getString("tel_number"));
+	            user.setNic(rs.getString("nic"));
+	            user.setDob(rs.getString("dob"));
+	            userList.add(user);
+	        }
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	    } finally {
+	        DbConnectionManager.closeConnection(con);
+	    }
+	    return userList;
+	}
 	
+	//user all user details
+	public static List<User> getAllUsers() {
+	    Connection con = null;
+	    List<User> userList = new ArrayList<>();
+	    ResultSet rs = null;
+	    try {
+	        con = DbConnectionManager.getConnection();
+	        String query = "SELECT *, r.display_name AS role_name FROM users u JOIN roles r ON u.role_id = r.id";
+	        PreparedStatement pst = con.prepareStatement(query);
+	        rs = pst.executeQuery();
+	        while (rs.next()) {
+	            User user = new User();
+	            user.setEmail(rs.getString("email"));
+	            user.setFirstName(rs.getString("first_name"));
+	            user.setLastName(rs.getString("last_name"));
+	            user.setTelNumber(rs.getString("tel_number"));
+	            user.setNic(rs.getString("nic"));
+	            user.setDob(rs.getString("dob"));
+				user.setRoleName(rs.getString("role_name"));
+	            userList.add(user);
+	        }
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	    } finally {
+	        DbConnectionManager.closeConnection(con);
+	    }
+	    return userList;
+	}
+	
+	//user create common function
 	public static User createUser(Connection con,String first_name, String last_name, String email_address, String password,
 			String confirm_password, String telephone_number, String nic, String date_of_birth, int roleId) {
 
@@ -238,63 +271,7 @@ public class UserDao {
 		return null;
 	}
 	
-	
-	
-	public static List<User> getAllTechnicians() {
-	    Connection con = null;
-	    List<User> userList = new ArrayList<>();
-	    ResultSet rs = null;
-	    try {
-	        con = DbConnectionManager.getConnection();
-	        String query = "SELECT * FROM users u JOIN roles r ON u.role_id = r.id WHERE r.name='technician'";
-	        PreparedStatement pst = con.prepareStatement(query);
-	        rs = pst.executeQuery();
-	        while (rs.next()) {
-	            User user = new User();
-	            user.setEmail(rs.getString("email"));
-	            user.setFirstName(rs.getString("first_name"));
-	            user.setLastName(rs.getString("last_name"));
-	            user.setTelNumber(rs.getString("tel_number"));
-	            user.setNic(rs.getString("nic"));
-	            user.setDob(rs.getString("dob"));
-	            userList.add(user);
-	        }
-	    } catch (SQLException e) {
-	        e.printStackTrace();
-	    } finally {
-	        DbConnectionManager.closeConnection(con);
-	    }
-	    return userList;
-	}
-	
-	public static List<User> getAllUsers() {
-	    Connection con = null;
-	    List<User> userList = new ArrayList<>();
-	    ResultSet rs = null;
-	    try {
-	        con = DbConnectionManager.getConnection();
-	        String query = "SELECT *, r.display_name AS role_name FROM users u JOIN roles r ON u.role_id = r.id";
-	        PreparedStatement pst = con.prepareStatement(query);
-	        rs = pst.executeQuery();
-	        while (rs.next()) {
-	            User user = new User();
-	            user.setEmail(rs.getString("email"));
-	            user.setFirstName(rs.getString("first_name"));
-	            user.setLastName(rs.getString("last_name"));
-	            user.setTelNumber(rs.getString("tel_number"));
-	            user.setNic(rs.getString("nic"));
-	            user.setDob(rs.getString("dob"));
-				user.setRoleName(rs.getString("role_name"));
-	            userList.add(user);
-	        }
-	    } catch (SQLException e) {
-	        e.printStackTrace();
-	    } finally {
-	        DbConnectionManager.closeConnection(con);
-	    }
-	    return userList;
-	}
-
+	//Create technicians
 	public static User createTechnicians(String first_name, String last_name, String email_address, String password,
 			String confirm_password, String telephone_number, String nic, String date_of_birth, String role) {
 		Connection con = null;
@@ -311,6 +288,24 @@ public class UserDao {
 		return user;
 	}
 
+	//Create patient
+	public static User createPatient(String first_name, String last_name, String email_address, String password,
+			String confirm_password, String telephone_number, String nic, String date_of_birth, String role) {
+		Connection con = null;
+		User user = null;
+		try {
+			con = DbConnectionManager.getConnection();
+			user = createUser(con, first_name, last_name, email_address, password, confirm_password, telephone_number,
+		            nic, date_of_birth, getRoleId(role));
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			DbConnectionManager.closeConnection(con);
+		}
+		return user;
+	}
+
+	//update user by email
 	public static User updateUserByEmail(String first_name, String last_name, String email_address, String telephone_number, String nic, String date_of_birth) {
 
         Connection con = null;
@@ -336,22 +331,4 @@ public class UserDao {
         }
         return null;
     }
-
-	
-
-	public static User createPatient(String first_name, String last_name, String email_address, String password,
-			String confirm_password, String telephone_number, String nic, String date_of_birth, String role) {
-		Connection con = null;
-		User user = null;
-		try {
-			con = DbConnectionManager.getConnection();
-			user = createUser(con, first_name, last_name, email_address, password, confirm_password, telephone_number,
-		            nic, date_of_birth, getRoleId(role));
-		} catch (SQLException e) {
-			e.printStackTrace();
-		} finally {
-			DbConnectionManager.closeConnection(con);
-		}
-		return user;
-	}
 }

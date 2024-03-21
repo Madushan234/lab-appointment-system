@@ -7,24 +7,14 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
-
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.PasswordAuthentication;
-import javax.mail.Session;
-import javax.mail.Transport;
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
 
 import com.labappointmentsystem.model.Appointment;
 import com.labappointmentsystem.model.User;
 import com.labappointmentsystem.util.DbConnectionManager;
+import com.labappointmentsystem.util.EmailSender;
+import com.labappointmentsystem.util.EmailSenderFactory;
 
 public class AppointmentDao {
-	private static final String EMAIL = "countinglead@gmail.com";
-	private static final String PASSWORD = "axrooqqmntvcxcdu";
 
 	private static Appointment getAppointmentFromResultSet(ResultSet rs) throws SQLException {
 		Appointment appointment = new Appointment();
@@ -44,6 +34,7 @@ public class AppointmentDao {
 		return appointment;
 	}
 
+	//find appointment by id
 	public static Appointment findAppointmentById(String id) {
 		Connection con = null;
 		Appointment appointment = null;
@@ -66,6 +57,7 @@ public class AppointmentDao {
 		return appointment;
 	}
 
+	//get all appointment
 	public static List<Appointment> getAllAppointments() {
 		Connection con = null;
 		List<Appointment> appointments = new ArrayList<>();
@@ -88,6 +80,7 @@ public class AppointmentDao {
 		return appointments;
 	}
 
+	//get appointment by user email
 	public static List<Appointment> getAppointmentsByUserEmail(String email) {
 		Connection con = null;
 		List<Appointment> appointments = new ArrayList<>();
@@ -111,6 +104,7 @@ public class AppointmentDao {
 		return appointments;
 	}
 
+	//create appointment
 	public static Appointment createAppointment(int userId, String userEmail, String recommended_doctor,
 			String booking_date, String booking_time, String[] medical_test) {
 		Connection con = null;
@@ -171,39 +165,22 @@ public class AppointmentDao {
 					if (rowsAffected2 > 0) {
 						con.commit();
 
-						Properties props = new Properties();
-						props.put("mail.smtp.host", "smtp.gmail.com");
-						props.put("mail.smtp.socketFactory.port", "465");
-						props.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
-						props.put("mail.smtp.auth", "true");
-						props.put("mail.smtp.port", "465");
-						Session session = Session.getDefaultInstance(props, new javax.mail.Authenticator() {
-							protected PasswordAuthentication getPasswordAuthentication() {
-								return new PasswordAuthentication(EMAIL, PASSWORD);
-							}
-						});
-						MimeMessage message = new MimeMessage(session);
-						try {
-							message.setFrom(new InternetAddress(EMAIL));
-							message.addRecipient(Message.RecipientType.TO, new InternetAddress(userEmail));
-							message.setSubject("ABC laboratory appointment. ID: " + appointmentId);
-							String htmlContent = "<html><body>" + "<h3>Hello,</h3>"
-									+ "<p>Thank you for choosing ABC laboratory for your medical tests. "
-									+ "We are thrilled to have you on board and look forward to providing you with exceptional service</p>"
-									+ "<br/><p>Your appointment details are as follows:.</p>"
-									+ "<p>Appointment Number : <strong>" + appointmentId + "</strong></p>"
-									+ "<p>Booking date : <strong>" + booking_date + "</strong></p>"
-									+ "<p>Booking time : <strong>" + booking_time + "</strong></p>"
-									+ "<br/><p>Thank you,</p>" + "<p>The ABC Laboratories Team</p>" + "</body></html>";
-							message.setContent(htmlContent, "text/html");
-							Transport.send(message);
-							System.out.println("message sent successfully");
-						} catch (AddressException e) {
-							e.printStackTrace();
-						} catch (MessagingException e) {
-							e.printStackTrace();
+						String htmlContent = "<html><body>" + "<h3>Hello,</h3>"
+								+ "<p>Thank you for choosing ABC laboratory for your medical tests. "
+								+ "We are thrilled to have you on board and look forward to providing you with exceptional service</p>"
+								+ "<br/><p>Your appointment details are as follows:.</p>"
+								+ "<p>Appointment Number : <strong>" + appointmentId + "</strong></p>"
+								+ "<p>Booking date : <strong>" + booking_date + "</strong></p>"
+								+ "<p>Booking time : <strong>" + booking_time + "</strong></p>"
+								+ "<br/><p>Thank you,</p>" + "<p>The ABC Laboratories Team</p>" + "</body></html>";
+						EmailSender emailSender = EmailSenderFactory.getEmailSender("gmail");
+						boolean isEmailSend= false;
+						if (emailSender != null) {
+							isEmailSend = emailSender.sendEmail(userEmail, "ABC laboratory appointment. ID: " + appointmentId, htmlContent);
 						}
-						return findAppointmentById(String.valueOf(appointmentId));
+						if(isEmailSend) {
+							return findAppointmentById(String.valueOf(appointmentId));
+						}
 					}
 				}
 			}

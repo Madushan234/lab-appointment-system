@@ -1,8 +1,11 @@
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
 	pageEncoding="ISO-8859-1"%>
 <%@ page import="java.util.Map"%>
+<%@ page import="com.labappointmentsystem.util.SessionMapUtils"%>
+<%@ page import="com.labappointmentsystem.util.UserAuthManager"%>
 <%
-if (session.getAttribute("user-email") != null) {
+boolean isAuth = UserAuthManager.getInstance().isAuthenticated(session);
+if (isAuth) {
 	response.sendRedirect("dashboard.jsp");
 }
 
@@ -12,11 +15,10 @@ if (successMessage != null) {
 }
 
 Map<String, String> fieldErrors = (Map<String, String>) session.getAttribute("fieldErrors");
-String emailError = (fieldErrors != null && fieldErrors.containsKey("email_address")) ? fieldErrors.get("email_address")
-		: null;
-String passwordError = (fieldErrors != null && fieldErrors.containsKey("password")) ? fieldErrors.get("password")
-		: null;
+String emailError = SessionMapUtils.getFiledValue(fieldErrors, "email_address");
+String passwordError = SessionMapUtils.getFiledValue(fieldErrors, "password");
 session.removeAttribute("fieldErrors");
+
 %>
 <!DOCTYPE html>
 <html>
@@ -46,43 +48,27 @@ session.removeAttribute("fieldErrors");
 							class="auth-form-light text-left py-5 px-4 px-sm-5 rounded-xl">
 							<div
 								class="align-items-center d-flex flex-column justify-content-center text-center">
-								<img src="assets/image/logo.svg" alt="logo" class="w-30 mb-4">
+								<img src="assets/image/logo.png" alt="logo" class="w-50 mb-4">
 								<h4 class="mb-2">Welcome to the ABC Laboratories</h4>
 								<h6 class="font-weight-normal mb-2">Sign in to continue</h6>
 							</div>
-							<%
-							if (successMessage != null) {
-							%>
+							<% if (successMessage != null) { %>
 							<div
 								class="align-items-center justify-content-center text-center border border-success py-2 my-3">
 								<span class="text-success font-weight-bold"><%=successMessage%></span>
 							</div>
-							<%
-							}
-							%>
+							<% } %>
 							<form class="pt-3" action="login" method="post">
 								<div class="form-group">
 									<input type="email" class="form-control form-control-lg"
 										id="email_address" name="email_address"
 										placeholder="Email Address">
-									<%
-									if (emailError != null) {
-									%>
-									<span style="color: red;"><%=emailError%></span>
-									<%
-									}
-									%>
+									<%=(emailError != null) ? "<span class=\"text-danger\">" + emailError + "</span>" : ""%>
 								</div>
 								<div class="form-group">
 									<input type="password" class="form-control form-control-lg"
 										id="password" name="password" placeholder="Password">
-									<%
-									if (passwordError != null) {
-									%>
-									<span style="color: red;"><%=passwordError%></span>
-									<%
-									}
-									%>
+									<%=(passwordError != null) ? "<span class=\"text-danger\">" + passwordError + "</span>" : ""%>
 								</div>
 								<div class="mt-3">
 									<input type="submit"
@@ -93,7 +79,7 @@ session.removeAttribute("fieldErrors");
 									class="my-2 d-flex justify-content-between align-items-center">
 									<div class="form-check">
 										<label class="form-check-label text-muted font-weight-normal">
-											<input type="checkbox" class="form-check-input"
+											<input type="checkbox" class="form-check-input ml-2 mt-1"
 											name="remember"> Keep me signed in
 										</label>
 									</div>
@@ -111,9 +97,5 @@ session.removeAttribute("fieldErrors");
 			</div>
 		</div>
 	</div>
-	
-	
-	
-
 </body>
 </html>

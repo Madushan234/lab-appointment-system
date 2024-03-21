@@ -13,7 +13,9 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import com.labappointmentsystem.dao.MedicalTestRecordDao;
+import com.labappointmentsystem.dao.UserDao;
 import com.labappointmentsystem.model.MedicalTestRecord;
+import com.labappointmentsystem.model.User;
 import com.labappointmentsystem.util.ValidationUtils;
 
 /**
@@ -22,19 +24,21 @@ import com.labappointmentsystem.util.ValidationUtils;
 @WebServlet("/backend-appointment/update-test-record")
 public class MedicalTestRecordServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-       
-    /**
-     * @see HttpServlet#HttpServlet()
-     */
-    public MedicalTestRecordServlet() {
-        super();
-        // TODO Auto-generated constructor stub
-    }
 
 	/**
-	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
+	 * @see HttpServlet#HttpServlet()
 	 */
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	public MedicalTestRecordServlet() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+
+	/**
+	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse
+	 *      response)
+	 */
+	protected void doGet(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
 		// TODO Auto-generated method stub
 		response.getWriter().append("Served at: ").append(request.getContextPath());
 	}
@@ -62,6 +66,7 @@ public class MedicalTestRecordServlet extends HttpServlet {
 		String test_record_id = request.getParameter("test_record_id");
 		String test_result = request.getParameter("test_result");
 		String test_status = request.getParameter("test_status");
+		String email_address = (String) session.getAttribute("user-email");
 
 		String error = ValidationUtils.isFieldRequired("test_result", test_result);
 		if (error != null) {
@@ -80,7 +85,14 @@ public class MedicalTestRecordServlet extends HttpServlet {
 
 		if (fieldErrors.isEmpty()) {
 			try {
-				medicalTestRecord = MedicalTestRecordDao.updateTestReord(test_record_id, test_result, test_status);
+				User userData = UserDao.findUserByEmail(email_address);
+				if (userData != null) {
+					String technician_id = String.valueOf(userData.getId());
+					medicalTestRecord = MedicalTestRecordDao.updateTestReord(test_record_id, test_result, test_status,
+							technician_id);
+				} else {
+					fieldErrors.put("common", "Something went wrong. please try again later.");
+				}
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -93,7 +105,5 @@ public class MedicalTestRecordServlet extends HttpServlet {
 			session.setAttribute("record-status", "Medical test record updated successfully.");
 		}
 		response.sendRedirect("medical-test-details.jsp?medical-test-record=" + test_record_id);
-
 	}
-
 }
