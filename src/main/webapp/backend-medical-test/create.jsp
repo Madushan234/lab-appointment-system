@@ -186,7 +186,7 @@ if (updateTestId != null) {
 								<div class="card-body">
 									<div class="d-flex justify-content-between m-3">
 										<p class="card-title mb-0">
-											<%=(updateTestId == null) ? "Create a New Technician" : "Update a Technician"%>
+											<%=(updateTestId == null) ? "Create a New Medical Test" : "Update a Medical Test"%>
 										</p>
 									</div>
 									<div class="my-5">

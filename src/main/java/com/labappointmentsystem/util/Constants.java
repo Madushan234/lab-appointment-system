@@ -2,8 +2,8 @@ package com.labappointmentsystem.util;
 
 public class Constants {
 
-    public static final String SMTP_EMAIL = "countinglead@gmail.com";
-    public static final String SMTP_PASSWORD = "axrooqqmntvcxcdu";
+    public static final String SMTP_EMAIL = "abclaboratoryuk@gmail.com";
+    public static final String SMTP_PASSWORD = "opygvcjqqpnuklgx";
     
 
     public static final String JDBC_URL = "jdbc:mysql://localhost:3306/lab-appointment-system";

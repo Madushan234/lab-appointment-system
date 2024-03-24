@@ -6,10 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import com.labappointmentsystem.model.Appointment;
-import com.labappointmentsystem.model.MedicalTest;
 import com.labappointmentsystem.model.Payment;
-import com.labappointmentsystem.model.User;
 import com.labappointmentsystem.util.DbConnectionManager;
 import com.labappointmentsystem.util.EmailSender;
 import com.labappointmentsystem.util.EmailSenderFactory;

@@ -32,4 +32,9 @@ public class DbConnectionManager {
 			}
 		}
 	}
+
+	public static void setTestMode(boolean b) {
+		// TODO Auto-generated method stub
+		
+	}
 }
